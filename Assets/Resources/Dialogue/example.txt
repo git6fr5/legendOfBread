@@ -1,0 +1,24 @@
+talk:Oh my goodness! Are you ok?
+talk:My name is Sally, what's your name?
+talk:...
+talk:[1.5]I'll tell you who you are, you're the hero![1.5]
+talk:I'm Mr Helper, [1.5]and I can tell right away that you are destined for [0.3]GREAT[1.5] things!
+talk:Right now you have nothing but the clothes on your back, but with enough hard work you can achieve anything!
+
+// the [1.5] makes the dialogue go at a rate of 1.5 x default
+// eventually when we specify characters (like below), it'll just pull the talking speed from that character
+// we can still use things like [0.5] to slow down and make characters stress words
+// i think it helps add personality to characters e.g. some talk slowly, some talk fast, some stress alot of words, others have stuttered speech rhythms
+
+// what it'll eventually look like
+action[character]:output
+
+e.g. 
+jump[sally]: // she'll jump on the spot
+move[sally]:up // makes her walk one tile up
+turn[sally]:left // turns her to face the right
+emote[sally]:exclamation_mark // for an exclamation mark emote to pop up over her head
+sound[]:bang // plays a bang sound
+
+maybe important characters can have color-representative dialogue (e.g. sally is blue, mr. helper green)
+talk[sally]:My name is Sally, what's your name? // talks in sally's voice (i.e talking speed, color, anything else we can think of)
