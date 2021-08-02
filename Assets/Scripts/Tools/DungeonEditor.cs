@@ -9,6 +9,7 @@ public class DungeonEditor : MonoBehaviour {
     /* --- ENUMS --- */
     public enum Channel {
         rooms,
+        paths,
         channelCount
     };
 
@@ -20,23 +21,29 @@ public class DungeonEditor : MonoBehaviour {
     /* --- COMPONENTS --- */
     [Space(5)]
     [Header("Maps")]
-    public Tilemap tileMap;
+    public Tilemap roomMap;
+    public Tilemap pathMap;
     public Text textMap;
 
     // temporary
-    public TileBase emptyTile;
-    public TileBase filledTile;
+    public TileBase[] roomTiles;
+    public TileBase[] pathTiles;
 
     /* --- VARIABLES --- */
     [Space(5)]
     [Header("Dungeon Dimensions")]
     // the dimensions of the dungeon (number of rooms)
-    [HideInInspector] public int[][][] roomChannels;
+    [HideInInspector] public int[][][] dungeonChannels;
     [Range(1, 8)] public  int sizeVertical = 4;
     [Range(1, 8)] public int sizeHorizontal = 4;
     // offset
     int horOffset = 0;
     int vertOffset = 0;
+    // mouse
+    int[] mouseCoord;
+    // maps
+    List<Tilemap> maps = new List<Tilemap>();
+    List<TileBase[]> tileSets = new List<TileBase[]>();
 
 
     /* ---- UNITY --- */
@@ -52,6 +59,7 @@ public class DungeonEditor : MonoBehaviour {
     void Update() {
         if (GetInput()) {
             PrintMap(Channel.rooms);
+            PrintMap(Channel.paths);
             // PrintText(Channel.rooms);
         }
     }
@@ -59,13 +67,13 @@ public class DungeonEditor : MonoBehaviour {
     /* --- INITIALIZERS --- */
     // initialize a grid full of empty tiles
     void SetGrid() {
-        roomChannels = new int[(int)Channel.channelCount][][];
+        dungeonChannels = new int[(int)Channel.channelCount][][];
         for (int n = 0; n < (int)Channel.channelCount; n++) {
-            roomChannels[n] = new int[sizeVertical][];
+            dungeonChannels[n] = new int[sizeVertical][];
             for (int i = 0; i < sizeVertical; i++) {
-                roomChannels[n][i] = new int[sizeHorizontal];
+                dungeonChannels[n][i] = new int[sizeHorizontal];
                 for (int j = 0; j < sizeHorizontal; j++) {
-                    roomChannels[n][i][j] = 0;
+                    dungeonChannels[n][i][j] = 0;
                 }
             }
         }
@@ -75,15 +83,30 @@ public class DungeonEditor : MonoBehaviour {
     void SetMap() {
         horOffset = (int)sizeHorizontal / 2;
         vertOffset = (int)sizeVertical / 2;
+        maps.Add(roomMap);
+        maps.Add(pathMap);
+        tileSets.Add(roomTiles);
+        tileSets.Add(pathTiles);
     }
 
     bool GetInput() {
         bool isInputting = false;
         if (Input.GetMouseButtonDown(0)) {
             // get the coordinates of the click
-            int[] coord = ClickToGrid();
+            mouseCoord = ClickToGrid();
             // add the room
-            AddRoom(coord[0], coord[1]);
+            AddRoom(mouseCoord[0], mouseCoord[1]);
+            isInputting = true;
+        }
+        if (Input.GetMouseButtonDown(1)) {
+            // get the coordinates of the click
+            mouseCoord = ClickToGrid();
+        }
+        if (Input.GetMouseButtonUp(1)) {
+            // get the coordinates of the release
+            int[] originCoord = mouseCoord;
+            int[] destCoord = ClickToGrid();
+            AddPath(originCoord, destCoord);
             isInputting = true;
         }
         return isInputting;
@@ -91,7 +114,15 @@ public class DungeonEditor : MonoBehaviour {
 
     /* --- CONSTRUCTORS --- */
     void AddRoom(int i, int j) {
-        roomChannels[(int)Channel.rooms][i][j] = 1;
+        dungeonChannels[(int)Channel.rooms][i][j] = 1;
+    }
+
+    void AddPath(int[] origin, int[] destination) {
+        int originIndex = dungeonChannels[(int)Channel.paths][origin[0]][origin[1]];
+        int destIndex = dungeonChannels[(int)Channel.paths][destination[0]][destination[1]];
+        // dungeonChannels[(int)Channel.paths][origin[0]][origin[1]] = (originIndex + 1) % 16; // 
+        dungeonChannels[(int)Channel.paths][origin[0]][origin[1]] = PathEditor.GetNewPathIndex(originIndex, origin, destination);
+        dungeonChannels[(int)Channel.paths][destination[0]][destination[1]] = PathEditor.GetNewPathIndex(destIndex, destination, origin);
     }
 
     /* --- DISPLAY --- */
@@ -116,17 +147,15 @@ public class DungeonEditor : MonoBehaviour {
         int n = (int)channel;
 
         // set the tile 
-        if (roomChannels[n][i][j] == 0) {
-            tileMap.SetTile(tilePosition, emptyTile);
-        }
-        else if (roomChannels[n][i][j] == 1) {
-            tileMap.SetTile(tilePosition, filledTile);
+        if (tileSets[n].Length > dungeonChannels[n][i][j]) {
+            TileBase tile = tileSets[n][dungeonChannels[n][i][j]];
+            maps[n].SetTile(tilePosition, tile);
         }
     }
     // prints out a grid cell to a tile
     public void PrintText(Channel channel) {
         string gridString = "";
-        int[][] roomChannel = roomChannels[(int)channel];
+        int[][] roomChannel = dungeonChannels[(int)channel];
         for (int i = 0; i < sizeVertical; i++) {
             for (int j = 0; j < sizeHorizontal; j++) {
                 string cellString = roomChannel[i][j].ToString();
@@ -151,7 +180,7 @@ public class DungeonEditor : MonoBehaviour {
     public int[] PointToGrid(Vector2 point) {
         int i = (int)(-point.y + vertOffset);
         int j = (int)(point.x + horOffset);
-        print(i + ", " + j);
+        // print(i + ", " + j);
         return new int[] { i, j };
     }
 
