@@ -1243,7 +1243,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   read: 1
-  autoWrite: 1
+  autoWrite: 0
   fileName: new_dungeon_2
   mode: 0
   shapeMap: {fileID: 860083568}
@@ -1394,7 +1394,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d757f35734e4dd14b87810da62ae10f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  widgets: []
+  widgets:
+  - {fileID: 211000043}
+  - {fileID: 1082245936}
 --- !u!1 &2113930244
 GameObject:
   m_ObjectHideFlags: 0

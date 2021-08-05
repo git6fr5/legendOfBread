@@ -12,11 +12,11 @@ public class Toggle : Widget {
     }
 
     void OnMouseDown() {
+        menu.DeactivateAll();
         SetToggle(!isToggled);
     }
 
     void SetToggle(bool _toggle) {
-        menu.DeactivateAll();
         isToggled = _toggle;
         for (int i = 0; i < selections.Length; i++) {
             selections[i].gameObject.SetActive(isToggled);

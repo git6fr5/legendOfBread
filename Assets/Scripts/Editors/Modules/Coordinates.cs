@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class PathEditor : MonoBehaviour
-{
+public class Coordinates : MonoBehaviour {
 
     /* --- ENUMS --- */
     public enum Directions {
-        EMPTY, 
+        EMPTY,
         RIGHT,
         UP, UP_RIGHT,
         LEFT, LEFT_RIGHT, LEFT_UP, LEFT_UP_RIGHT,
@@ -43,7 +42,8 @@ public class PathEditor : MonoBehaviour
         // get the direction
         else if (dest[1] - origin[1] == 1) {
             // right
-            if (currIndex % 2 == 1) {
+            int check = currIndex % 2;
+            if (check >= 1) {
                 return currIndex - 1;
             }
             return currIndex + 1;
@@ -93,8 +93,8 @@ public class PathEditor : MonoBehaviour
     }
 
     static int RemovePathEnum(int currIndex, int multiplier) {
-        int check = currIndex % multiplier * 2;
-        if (check >= 8) {
+        int check = currIndex % (multiplier * 2);
+        if (check >= multiplier) {
             return currIndex - multiplier;
         }
         return currIndex;

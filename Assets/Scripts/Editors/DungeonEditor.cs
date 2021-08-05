@@ -18,7 +18,8 @@ public class DungeonEditor : MonoBehaviour {
 
     public enum Shape {
         EMPTY,
-        BASIC,
+        SQUARE,
+        HORIZONTAL_EVEN_RECTANGLES,
         roomCount
     }
 
@@ -71,7 +72,7 @@ public class DungeonEditor : MonoBehaviour {
         SetChannels();
         if (read) { Read(); }
         else { SetGrid(); }
-        SetMap();
+        SetOffset();
         PrintAll();
     }
 
@@ -154,10 +155,11 @@ public class DungeonEditor : MonoBehaviour {
         }
     }
 
-    // initialize a tilemap
-    void SetMap() {
-        horOffset = (int)sizeHorizontal / 2;
-        vertOffset = (int)sizeVertical / 2;
+    // initialize the offset of tilemap
+    void SetOffset() {
+        // this will do weird stuff if the transform positions arent at integers
+        horOffset = (int)(sizeHorizontal / 2 + transform.position.x);
+        vertOffset = (int)(sizeVertical / 2 + transform.position.y);
     }
 
     // sets the current channel thats being edited
@@ -236,32 +238,33 @@ public class DungeonEditor : MonoBehaviour {
         dungeonChannels[(int)Channel.CHALLENGE][origin[0]][origin[1]] = (int)Challenge.EMPTY;
 
         // remove all paths attaching to the room as well
-        dungeonChannels[(int)Channel.PATHS][origin[0]][origin[1]] = (int)PathEditor.Directions.EMPTY;
+        dungeonChannels[(int)Channel.PATHS][origin[0]][origin[1]] = (int)Coordinates.Directions.EMPTY;
 
         int i = origin[0];
         int j = origin[1];
-        if (CheckRoom(new int[] { i, j + 1 })) {
-            int pathIndex = dungeonChannels[(int)Channel.SHAPE][i][j + 1];
-            int newIndex = PathEditor.RemoveRightPath(pathIndex);
-            dungeonChannels[(int)Channel.SHAPE][i][j + 1] = newIndex;
-        }
-        if (CheckRoom(new int[] { i - 1, j + 1 })) {
-
-            int pathIndex = dungeonChannels[(int)Channel.SHAPE][i - 1][j];
-            int newIndex = PathEditor.RemoveUpPath(pathIndex);
-            dungeonChannels[(int)Channel.SHAPE][i - 1][j] = newIndex;
-        }
         if (CheckRoom(new int[] { i, j - 1 })) {
-
-            int pathIndex = dungeonChannels[(int)Channel.SHAPE][i][j - 1];
-            int newIndex = PathEditor.RemoveLeftPath(pathIndex);
-            dungeonChannels[(int)Channel.SHAPE][i][j - 1] = newIndex;
+            // remove the right path from the room on the left
+            int pathIndex = dungeonChannels[(int)Channel.PATHS][i][j - 1];
+            int newIndex = Coordinates.RemoveRightPath(pathIndex);
+            dungeonChannels[(int)Channel.PATHS][i][j - 1] = newIndex;
         }
         if (CheckRoom(new int[] { i + 1, j })) {
-
-            int pathIndex = dungeonChannels[(int)Channel.SHAPE][i + 1][j];
-            int newIndex = PathEditor.RemoveDownPath(pathIndex);
-            dungeonChannels[(int)Channel.SHAPE][i + 1][j] = newIndex;
+            // remove the up path from the room below
+            int pathIndex = dungeonChannels[(int)Channel.PATHS][i + 1][j];
+            int newIndex = Coordinates.RemoveUpPath(pathIndex);
+            dungeonChannels[(int)Channel.PATHS][i + 1][j] = newIndex;
+        }
+        if (CheckRoom(new int[] { i, j + 1 })) {
+            // remove the left path from the room on the right
+            int pathIndex = dungeonChannels[(int)Channel.PATHS][i][j + 1];
+            int newIndex = Coordinates.RemoveLeftPath(pathIndex);
+            dungeonChannels[(int)Channel.PATHS][i][j + 1] = newIndex;
+        }
+        if (CheckRoom(new int[] { i - 1, j })) {
+            // remove the down path from the room above
+            int pathIndex = dungeonChannels[(int)Channel.PATHS][i - 1][j];
+            int newIndex = Coordinates.RemoveDownPath(pathIndex);
+            dungeonChannels[(int)Channel.PATHS][i - 1][j] = newIndex;
         }
     }
 
@@ -286,8 +289,8 @@ public class DungeonEditor : MonoBehaviour {
         if (CheckRoom(origin) && CheckRoom(dest)) {
             int originIndex = dungeonChannels[(int)Channel.PATHS][origin[0]][origin[1]];
             int destIndex = dungeonChannels[(int)Channel.PATHS][dest[0]][dest[1]];
-            dungeonChannels[(int)Channel.PATHS][origin[0]][origin[1]] = PathEditor.GetNewPathIndex(originIndex, origin, dest);
-            dungeonChannels[(int)Channel.PATHS][dest[0]][dest[1]] = PathEditor.GetNewPathIndex(destIndex, dest, origin);
+            dungeonChannels[(int)Channel.PATHS][origin[0]][origin[1]] = Coordinates.GetNewPathIndex(originIndex, origin, dest);
+            dungeonChannels[(int)Channel.PATHS][dest[0]][dest[1]] = Coordinates.GetNewPathIndex(destIndex, dest, origin);
         }
     }
 
@@ -338,8 +341,8 @@ public class DungeonEditor : MonoBehaviour {
 
     // a given point to grid coordinates 
     public int[] PointToGrid(Vector2 point) {
-        int i = (int)(-point.y + vertOffset + transform.position.y);
-        int j = (int)(point.x + horOffset + transform.position.x);
+        int i = (int)(-point.y + vertOffset);
+        int j = (int)(point.x + horOffset);
         // print(i + ", " + j);
         return new int[] { i, j };
     }
