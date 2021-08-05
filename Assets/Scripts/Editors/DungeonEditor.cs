@@ -24,10 +24,8 @@ public class DungeonEditor : MonoBehaviour {
 
     public enum Challenge {
         EMPTY,
-        ENTRANCE,
         COMBAT,
         PUZZLE,
-        TRAP,
         challengeCount
     }
 
@@ -224,13 +222,47 @@ public class DungeonEditor : MonoBehaviour {
     void AddRoom(int[] origin) {
         if (CheckLocation(origin)) {
             int room = dungeonChannels[(int)Channel.SHAPE][origin[0]][origin[1]];
-            dungeonChannels[(int)Channel.SHAPE][origin[0]][origin[1]] = (room + 1) % (int)Shape.roomCount;
+            if ((room + 1) % (int)Shape.roomCount == 0){
+                RemoveRoom(origin);
+            }
+            else {
+                dungeonChannels[(int)Channel.SHAPE][origin[0]][origin[1]] = (room + 1) % (int)Shape.roomCount;
+            }
         }  
     }
 
     void RemoveRoom(int[] origin) {
         dungeonChannels[(int)Channel.SHAPE][origin[0]][origin[1]] = (int)Shape.EMPTY;
+        dungeonChannels[(int)Channel.CHALLENGE][origin[0]][origin[1]] = (int)Challenge.EMPTY;
+
         // remove all paths attaching to the room as well
+        dungeonChannels[(int)Channel.PATHS][origin[0]][origin[1]] = (int)PathEditor.Directions.EMPTY;
+
+        int i = origin[0];
+        int j = origin[1];
+        if (CheckRoom(new int[] { i, j + 1 })) {
+            int pathIndex = dungeonChannels[(int)Channel.SHAPE][i][j + 1];
+            int newIndex = PathEditor.RemoveRightPath(pathIndex);
+            dungeonChannels[(int)Channel.SHAPE][i][j + 1] = newIndex;
+        }
+        if (CheckRoom(new int[] { i - 1, j + 1 })) {
+
+            int pathIndex = dungeonChannels[(int)Channel.SHAPE][i - 1][j];
+            int newIndex = PathEditor.RemoveUpPath(pathIndex);
+            dungeonChannels[(int)Channel.SHAPE][i - 1][j] = newIndex;
+        }
+        if (CheckRoom(new int[] { i, j - 1 })) {
+
+            int pathIndex = dungeonChannels[(int)Channel.SHAPE][i][j - 1];
+            int newIndex = PathEditor.RemoveLeftPath(pathIndex);
+            dungeonChannels[(int)Channel.SHAPE][i][j - 1] = newIndex;
+        }
+        if (CheckRoom(new int[] { i + 1, j })) {
+
+            int pathIndex = dungeonChannels[(int)Channel.SHAPE][i + 1][j];
+            int newIndex = PathEditor.RemoveDownPath(pathIndex);
+            dungeonChannels[(int)Channel.SHAPE][i + 1][j] = newIndex;
+        }
     }
 
     bool CheckRoom(int[] origin) {

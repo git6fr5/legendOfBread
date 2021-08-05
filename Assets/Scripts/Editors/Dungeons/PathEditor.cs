@@ -76,6 +76,29 @@ public class PathEditor : MonoBehaviour
         return currIndex;
     }
 
+    public static int RemoveRightPath(int currIndex) {
+        return RemovePathEnum(currIndex, 1);
+    }
+
+    public static int RemoveUpPath(int currIndex) {
+        return RemovePathEnum(currIndex, 2);
+    }
+
+    public static int RemoveLeftPath(int currIndex) {
+        return RemovePathEnum(currIndex, 4);
+    }
+
+    public static int RemoveDownPath(int currIndex) {
+        return RemovePathEnum(currIndex, 8);
+    }
+
+    static int RemovePathEnum(int currIndex, int multiplier) {
+        int check = currIndex % multiplier * 2;
+        if (check >= 8) {
+            return currIndex - multiplier;
+        }
+        return currIndex;
+    }
 
 
 }
