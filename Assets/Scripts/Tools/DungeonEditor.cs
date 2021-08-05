@@ -12,37 +12,22 @@ public class DungeonEditor : MonoBehaviour {
     public enum Channel {
         ROOMS,
         PATHS,
-        TYPES,
-        NOT_SURE,
         channelCount
     };
 
-    public enum Rooms {
+    public enum Shapes {
         EMPTY,
         BASIC,
         roomCount
     }
 
-    public enum Type {
-        EMPTY,
-        COMBAT,
-        PUZZLE,
-        typeCount
-    }
-
     /* --- COMPONENTS --- */
     [Space(5)][Header("IO")]
-    public bool read = false;
     public bool autoSave = false;
-    public string readPath;
-    public string savePath;
-    string parentPath = "Assets/Resources/Dungeons/";
-    string fileType = ".txt";
 
     [Space(5)][Header("Maps")]
     public Tilemap roomMap;
     public Tilemap pathMap;
-    public Tilemap typeMap;
     public Text textMap;
 
     [Space(5)][Header("Selectors")]
@@ -51,7 +36,6 @@ public class DungeonEditor : MonoBehaviour {
     [Space(5)][Header("Tiles")]
     public TileBase[] roomTiles;
     public TileBase[] pathTiles;
-    public TileBase[] typeTiles;
 
     /* --- VARIABLES --- */
     // the dimensions of the dungeon (number of rooms)
@@ -72,8 +56,7 @@ public class DungeonEditor : MonoBehaviour {
     // runs once before the first frame
     void OnEnable() {
         SetChannels();
-        if (read) { Read(); }
-        else { SetGrid(); }
+        Open();
         SetMap();
         PrintAll();
     }
@@ -88,7 +71,7 @@ public class DungeonEditor : MonoBehaviour {
 
     /* --- FILES --- */
     // reads the dungeon from the given path
-    void Read() {
+    void Open() {
 
         string dungeon = "";
         using (StreamReader readFile = new StreamReader(parentPath + readPath + fileType)) {
@@ -159,8 +142,8 @@ public class DungeonEditor : MonoBehaviour {
 
     // initialize a tilemap
     void SetMap() {
-        horOffset = (int)sizeHorizontal / 2;
-        vertOffset = (int)sizeVertical / 2;
+        horOffset = (int)sizeHorizontal / 2 + transform.position.x;
+        vertOffset = (int)sizeVertical / 2 + transform.position.y;
     }
 
     // sets the current channel thats being edited
@@ -175,14 +158,14 @@ public class DungeonEditor : MonoBehaviour {
             case Channel.ROOMS:
                 if (Input.GetMouseButtonDown(0)) {
                     // get the coordinates of the click
-                    mouseCoord = ClickToGrid();
+                    mouseCoord = Editor.ClickToGrid(horOffset, vertOffset);
                     // add the room
                     AddRoom(mouseCoord);
                     return true;
                 }
                 if (Input.GetMouseButtonDown(1)) {
                     // get the coordinates of the click
-                    mouseCoord = ClickToGrid();
+                    mouseCoord = Editor.ClickToGrid(horOffset, vertOffset);
                     // add the room
                     RemoveRoom(mouseCoord);
                     return true;
@@ -192,12 +175,12 @@ public class DungeonEditor : MonoBehaviour {
             case Channel.PATHS:
                 if (Input.GetMouseButtonDown(0)) {
                     // get the coordinates of the click
-                    mouseCoord = ClickToGrid();
+                    mouseCoord = Editor.ClickToGrid(horOffset, vertOffset);
                 }
                 if (Input.GetMouseButtonUp(0)) {
                     // get the coordinates of the release
                     int[] originCoord = mouseCoord;
-                    int[] destCoord = ClickToGrid();
+                    int[] destCoord = Editor.ClickToGrid(horOffset, vertOffset);
                     EditPath(originCoord, destCoord);
                     return true;
                 }
@@ -206,7 +189,7 @@ public class DungeonEditor : MonoBehaviour {
             case Channel.TYPES:
                 if (Input.GetMouseButtonDown(0)) {
                     // get the coordinates of the click
-                    mouseCoord = ClickToGrid();
+                    mouseCoord = Editor.ClickToGrid(horOffset, vertOffset);
                     // add the room
                     ChangeType(mouseCoord);
                     return true;
@@ -225,18 +208,18 @@ public class DungeonEditor : MonoBehaviour {
     void AddRoom(int[] origin) {
         if (CheckLocation(origin)) {
             int room = dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]];
-            dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]] = (room + 1) % (int)Rooms.roomCount;
+            dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]] = (room + 1) % (int)Shapes.roomCount;
         }  
     }
 
     void RemoveRoom(int[] origin) {
-        dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]] = (int)Rooms.EMPTY;
+        dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]] = (int)Shapes.EMPTY;
         // remove all paths attaching to the room as well
     }
 
     bool CheckRoom(int[] origin) {
         if (CheckLocation(origin)) {
-            if (dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]] != (int)Rooms.EMPTY) {
+            if (dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]] != (int)Shapes.EMPTY) {
                 return true;
             }
         }
@@ -283,30 +266,6 @@ public class DungeonEditor : MonoBehaviour {
         PrintMap(Channel.TYPES);
     }
 
-    public void PrintMap(Channel channel) {
-        for (int i = 0; i < sizeVertical; i++) {
-            for (int j = 0; j < sizeHorizontal; j++) {
-                PrintTile(channel, i, j);
-            }
-        }
-    }
-
-    // prints out a grid cell to a tile
-    public void PrintTile(Channel channel, int i, int j) {
-        // get the tile position from the grid coordinates
-        Vector3Int tilePosition = GridToTileMap(i, j);
-
-        // get the channel we're editing
-        // for now this is just room channel
-        int n = (int)channel;
-
-        // set the tile 
-        if (dungeonChannels[n][i][j] < tileSets[n].Length) {
-            TileBase tile = tileSets[n][dungeonChannels[n][i][j]];
-            maps[n].SetTile(tilePosition, tile);
-        }
-    }
-
     // prints out a grid cell to a tile
     public void PrintText(Channel channel) {
         string gridString = "";
@@ -322,35 +281,6 @@ public class DungeonEditor : MonoBehaviour {
             gridString += "\n";
         }
         textMap.text = gridString;
-    }
-
-    /* --- CONVERSION --- */
-    // mouse click to grid coordinate
-    public int[] ClickToGrid() {
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        return PointToGrid(mousePos);
-    }
-
-    // a given point to grid coordinates 
-    public int[] PointToGrid(Vector2 point) {
-        int i = (int)(-point.y + vertOffset + transform.position.y);
-        int j = (int)(point.x + horOffset + transform.position.x);
-        // print(i + ", " + j);
-        return new int[] { i, j };
-    }
-
-    // checks if a coordinate is in the grid
-    public bool PointInGrid(int[] point) {
-        bool isInGrid = (point[1] < sizeHorizontal && point[1] >= 0 && point[0] < sizeVertical && point[0] >= 0);
-        if (!isInGrid) {
-            print(point[0] + ", " + point[1] + " was not in the grid");
-        }
-        return isInGrid;
-    }
-
-    // grid coordinate to tilemap position
-    public Vector3Int GridToTileMap(int i, int j) {
-        return new Vector3Int(j - horOffset, -(i - vertOffset + 1), 0);
     }
 
 
