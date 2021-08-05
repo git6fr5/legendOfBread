@@ -41,6 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Boundary
+    uniqueID: 1888002849
+    locked: 0
+  - name: Ground
+    uniqueID: 20071557
+    locked: 0
+  - name: Characters
+    uniqueID: 1729295475
+    locked: 0
   - name: UI
     uniqueID: 3041693103
     locked: 0

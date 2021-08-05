@@ -6,26 +6,57 @@ public class Geometry2D {
 
     /* --- ENUMS --- */
     public enum Shape {
-        square, ellipse, triangle
+        SQUARE, 
+        HORIZONTAL_EVEN_RECTANGLES,
+        ELLIPSE, 
+        TRIANGLE,
+        shapeCount
     }
 
     /* --- METHODS --- */
     // constructs the given shape
     public static int[][] ConstructShape(Shape shape, int backgroundTileID, int fillTileID, int vertical, int horizontal) {
         switch (shape) {
-            case Shape.square:
+            case Shape.SQUARE:
                 Debug.Log("Constructing Square");
                 return Square(backgroundTileID, fillTileID, vertical, horizontal);
-            case Shape.ellipse:
+            case Shape.HORIZONTAL_EVEN_RECTANGLES:
+                Debug.Log("Constructing Square");
+                return HorizontalEvenRectangles(backgroundTileID, fillTileID, vertical, horizontal);
+            case Shape.ELLIPSE:
                 Debug.Log("Constructing Ellipse");
                 return Ellipse(backgroundTileID, fillTileID, vertical, horizontal);
-            case Shape.triangle:
+            case Shape.TRIANGLE:
                 Debug.Log("Constructing Triangle");
                 return Triangle(backgroundTileID, fillTileID, vertical, horizontal);
             default:
                 Debug.Log("Unknown Shape");
                 return new int[0][];
         }
+    }
+
+    // constructs the given shape
+    public static int[][] ConstructRoom(DungeonEditor.Rooms room, int backgroundTileID, int fillTileID, int vertical, int horizontal) {
+        switch (room) {
+            case DungeonEditor.Rooms.BASIC:
+                Debug.Log("Constructing Square");
+                return Square(backgroundTileID, fillTileID, vertical, horizontal);
+            default:
+                return Empty(backgroundTileID, fillTileID, vertical, horizontal);
+        }
+    }
+
+    // creates a square sub grid
+    public static int[][] Empty(int backgroundTileID, int fillTileID, int vertical, int horizontal) {
+        // initialize the grid
+        int[][] square = new int[vertical][];
+        for (int i = 0; i < square.Length; i++) {
+            square[i] = new int[horizontal];
+            for (int j = 0; j < square[i].Length; j++) {
+                square[i][j] = backgroundTileID;
+            }
+        }
+        return square;
     }
 
     // creates a square sub grid
@@ -39,6 +70,32 @@ public class Geometry2D {
             }
         }
         return square;
+    }
+
+    // creates a square sub grid
+    public static int[][] HorizontalEvenRectangles(int backgroundTileID, int fillTileID, int vertical, int horizontal) {
+        // initialize the grid
+        int[][] horizontalEvenRect = new int[vertical][];
+        for (int i = 0; i < horizontalEvenRect.Length; i++) {
+            horizontalEvenRect[i] = new int[horizontal];
+            for (int j = 0; j < horizontalEvenRect[i].Length; j++) {
+                horizontalEvenRect[i][j] = backgroundTileID;
+            }
+        }
+
+        int boundary = (int)Mathf.Floor(vertical / 2);
+        for (int i = 0; i < boundary - 1; i++) {
+            for (int j = 0; j < horizontalEvenRect[i].Length; j++) {
+                horizontalEvenRect[i][j] = fillTileID;
+            }
+        }
+        for (int i = boundary+1; i < horizontalEvenRect.Length; i++) {
+            for (int j = 0; j < horizontalEvenRect[i].Length; j++) {
+                horizontalEvenRect[i][j] = fillTileID;
+            }
+        }
+
+        return horizontalEvenRect;
     }
 
     // creates an ellipse sub grid

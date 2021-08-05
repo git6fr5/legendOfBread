@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
@@ -9,16 +11,23 @@ public class RoomEditor : MonoBehaviour {
 
     /* --- ENUMS --- */
     public enum Tiles {
-        empty, center,
-        rightEdge,
-        ceiling, ceilingRightCorner,
-        leftEdge, centerSpike, ceilingLeftCorner, ceilingSpike,
-        floor, floorRightEdge, platformCenter, platformRightEdge, floorLeftEdge, floorSpike, platformLeftEdge,
-        hangingBlock
+        EMPTY,
+        CENTER,
+        RIGHT,
+        UP, UP_RIGHT,
+        LEFT, LEFT_RIGHT, LEFT_UP, LEFT_UP_RIGHT,
+        DOWN, DOWN_RIGHT, DOWN_UP, DOWN_UP_RIGHT, DOWN_LEFT, DOWN_LEFT_RIGHT, DOWN_LEFT_UP,
+        DOWN_LEFT_UP_RIGHT
     };
 
-
     /* --- COMPONENTS --- */
+    [Space(5)]
+    [Header("Read/Save")]
+    public bool read = false;
+    // public bool autoSave = false;
+    public string readPath;
+    // public string savePath;
+
     [Space(5)]
     [Header("Maps")]
     public Tilemap tilemap;
@@ -26,21 +35,18 @@ public class RoomEditor : MonoBehaviour {
     // layouts
     [Space(5)]
     [Header("Tiles")]
-    public Layout2D tileLayout;
+    public Layout tileLayout;
 
     /* --- VARIABLES --- */
     [Space(5)]
     [Header("Auto Generate")]
     public Vector2Int id;
-    public bool generate = true;
-    public bool cleanGrid = true;
-    public Geometry2D.Shape defaultShape;
     // room dimensions 
     [Space(5)]
     [Header("Room Dimensions")]
     [HideInInspector] public int[][] grid;
-    [Range(16, 128)] public int sizeVertical = 64;
-    [Range(16, 128)] public int sizeHorizontal = 64;
+    [Range(2, 16)] public int sizeVertical = 7;
+    [Range(2, 16)] public int sizeHorizontal = 7;
     [Range(1, 32)] public int borderVertical = 4;
     [Range(1, 32)] public int borderHorizontal = 4;
     // offset
@@ -52,62 +58,72 @@ public class RoomEditor : MonoBehaviour {
     /* --- UNITY --- */
     // runs once on compilation
     void Awake() {
-        Initialize();
+        tileLayout.Organize();
+    }
+
+    // runs every time this is activated
+    void OnEnable() {
+        if (read) { Read(); }
+        else { SetGrid(); }
+        SetMap();
+        PrintText();
+        PrintMap();
+    }
+
+    /* --- FILES --- */
+    void Read() {
+        SetGrid();
+        string dungeon = "";
+        using (StreamReader readFile = new StreamReader("Assets/Resources/Dungeons/" + readPath + ".txt")) {
+            dungeon = readFile.ReadToEnd();
+        }
+
+        string[] channels = dungeon.Split('\n');
+        int[][][] dungeonChannels = new int[channels.Length - 1][][];
+        for (int n = 0; n < channels.Length - 1; n++) {
+            string[] rows = channels[n].Split('\t');
+            dungeonChannels[n] = new int[rows.Length - 1][];
+            for (int i = 0; i < rows.Length - 1; i++) {
+                string[] columns = rows[i].Split(' ');
+                dungeonChannels[n][i] = new int[columns.Length - 1];
+                for (int j = 0; j < columns.Length - 1; j++) {
+                    print(columns[j]);
+                    print(int.Parse(columns[j]));
+                    dungeonChannels[n][i][j] = int.Parse(columns[j]);
+                }
+            }
+        }
+        DungeonEditor.Rooms room = (DungeonEditor.Rooms)dungeonChannels[(int)DungeonEditor.Channel.ROOMS][id.x][id.y];
+        print(room);
+        SetRoom(room);
+        CleanGrid();
     }
 
     /* --- INITIALIZERS --- */
-    // sets up the room
-    public void Initialize() {
-        // OrganizeLayouts();
-        SetGrid();
-        // SetMap();
-        if (generate) { Generate(); }
-        PrintText();
-    }
-
-    // reorder the layouts to be compatible with the enum
-    public void OrganizeLayouts() {
-        TileBase[] _tileLayout = tileLayout.tiles;
-        tileLayout.tiles = new TileBase[tileLayout.tiles.Length];
-
-        for (int i = 0; i < _tileLayout.Length; i++) {
-            if (reOrder[i] == -1) { tileLayout.tiles[i] = null; }
-            else {
-                tileLayout.tiles[i] = _tileLayout[reOrder[i]];
-            }
-        }
-    }
-
     // initialize a grid full of empty tiles
     void SetGrid() {
         grid = new int[sizeVertical][];
         for (int i = 0; i < sizeVertical; i++) {
             grid[i] = new int[sizeHorizontal];
             for (int j = 0; j < grid[i].Length; j++) {
-                grid[i][j] = (int)Tiles.empty;
+                grid[i][j] = (int)Tiles.EMPTY;
             }
         }
     }
 
     // initialize a tilemap
     void SetMap() {
-        horOffset = -(int)sizeHorizontal * id.x;
-        vertOffset = (int)sizeVertical * id.y;
+        horOffset = (int)(sizeHorizontal / 2); // -(int)sizeHorizontal * id.x + (id.x * (int)sizeHorizontal / 2);
+        vertOffset = (int)(sizeVertical / 2); // (int)sizeVertical * id.y + (-id.y * (int)sizeVertical / 2);
         PrintMap();
     }
 
     /* --- CONSTRUCTION --- */
-    // generates a shape
-    public void Generate() {
-        AddShape(defaultShape);  
-        if (cleanGrid) { CleanGrid(); }
-    }
-
     // adds a point at the given coordinates
     public void AddPoint(int i, int j) {
         int[] point = new int[] { i, j };
         if (PointInGrid(point)) {
-            grid[point[0]][point[1]] = (int)Tiles.center;
+            grid[point[0]][point[1]] = (int)Tiles.CENTER;
         }
     }
 
@@ -116,17 +132,26 @@ public class RoomEditor : MonoBehaviour {
         // create the shape sub grid
         int dimensionVertical = sizeVertical - 2 * borderVertical;
         int dimensionHorizontal = sizeHorizontal - 2 * borderHorizontal;
-        int[][] subGrid = Geometry2D.ConstructShape(shape, (int)Tiles.empty, (int)Tiles.center, dimensionVertical, dimensionHorizontal);
+        int[][] subGrid = Geometry2D.ConstructShape(shape, (int)Tiles.EMPTY, (int)Tiles.CENTER, dimensionVertical, dimensionHorizontal);
+        // add the shape sub grid to the grid
+        AttachToGrid(subGrid);
+    }
+
+    public void SetRoom(DungeonEditor.Rooms room) {
+        // create the shape sub grid
+        int dimensionVertical = sizeVertical - 2 * borderVertical;
+        int dimensionHorizontal = sizeHorizontal - 2 * borderHorizontal;
+        int[][] subGrid = Geometry2D.ConstructRoom(room, (int)Tiles.EMPTY, (int)Tiles.CENTER, dimensionVertical, dimensionHorizontal);
         // add the shape sub grid to the grid
         AttachToGrid(subGrid);
     }
 
     // attach a sub grid to the grid
     public void AttachToGrid(int[][] subGrid) {
-        int[] anchor = new int[]{ borderVertical, borderHorizontal};
+        int[] anchor = new int[] { borderVertical, borderHorizontal };
         for (int i = 0; i < subGrid.Length; i++) {
             for (int j = 0; j < subGrid[0].Length; j++) {
-                if (subGrid[i][j] != (int)Tiles.empty) {
+                if (subGrid[i][j] != (int)Tiles.EMPTY) {
                     int[] point = new int[] { i + anchor[0], j + anchor[1] };
                     if (PointInGrid(point)) {
                         grid[i + anchor[0]][j + anchor[1]] = subGrid[i][j];
@@ -150,7 +175,7 @@ public class RoomEditor : MonoBehaviour {
     public void CleanCell(int i, int j) {
         // check only the non-empty tiles
         int code = 1; // starting from one to account for the 0th null tile
-        if (grid[i][j] != (int)Tiles.empty) {
+        if (grid[i][j] != (int)Tiles.EMPTY) {
             // is top empty
             if (CellEmpty(i - 1, j)) {
                 code += 8;
@@ -174,7 +199,7 @@ public class RoomEditor : MonoBehaviour {
     // check if the cell at the given coordinates is empty
     bool CellEmpty(int i, int j) {
         if (i < 0 || i > grid.Length - 1 || j < 0 || j > grid[0].Length - 1) { return true; }
-        if (grid[i][j] == (int)Tiles.empty) {
+        if (grid[i][j] == (int)Tiles.EMPTY) {
             return true;
         }
         return false;

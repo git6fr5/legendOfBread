@@ -152,7 +152,7 @@ public class SpriteFontBuilderWindow : EditorWindow {
 
 			if ( _setup == null ) {
 				_setup = new GameObject( "SpriteFontSetup" );
-				PrefabUtility.CreatePrefab( _path + "SpriteFontSetup.prefab", _setup );
+				// PrefabUtility.CreatePrefab( _path + "SpriteFontSetup.prefab", _setup );
 				GameObject.DestroyImmediate( _setup );
 				GetPrefab();
 			}
