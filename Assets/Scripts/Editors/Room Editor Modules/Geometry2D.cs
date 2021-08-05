@@ -35,17 +35,6 @@ public class Geometry2D {
         }
     }
 
-    // constructs the given shape
-    public static int[][] ConstructRoom(DungeonEditor.Rooms room, int backgroundTileID, int fillTileID, int vertical, int horizontal) {
-        switch (room) {
-            case DungeonEditor.Rooms.BASIC:
-                Debug.Log("Constructing Square");
-                return Square(backgroundTileID, fillTileID, vertical, horizontal);
-            default:
-                return Empty(backgroundTileID, fillTileID, vertical, horizontal);
-        }
-    }
-
     // creates a square sub grid
     public static int[][] Empty(int backgroundTileID, int fillTileID, int vertical, int horizontal) {
         // initialize the grid

@@ -62,7 +62,7 @@ public class RoomEditor : MonoBehaviour {
     }
 
     // runs every time this is activated
-    void OnEnable() {
+    void Start() {
         if (read) { Read(); }
         else { SetGrid(); }
         SetMap();
@@ -72,31 +72,8 @@ public class RoomEditor : MonoBehaviour {
 
     /* --- FILES --- */
     void Read() {
+        // temp
         SetGrid();
-        string dungeon = "";
-        using (StreamReader readFile = new StreamReader("Assets/Resources/Dungeons/" + readPath + ".txt")) {
-            dungeon = readFile.ReadToEnd();
-        }
-
-        string[] channels = dungeon.Split('\n');
-        int[][][] dungeonChannels = new int[channels.Length - 1][][];
-        for (int n = 0; n < channels.Length - 1; n++) {
-            string[] rows = channels[n].Split('\t');
-            dungeonChannels[n] = new int[rows.Length - 1][];
-            for (int i = 0; i < rows.Length - 1; i++) {
-                string[] columns = rows[i].Split(' ');
-                dungeonChannels[n][i] = new int[columns.Length - 1];
-                for (int j = 0; j < columns.Length - 1; j++) {
-                    print(columns[j]);
-                    print(int.Parse(columns[j]));
-                    dungeonChannels[n][i][j] = int.Parse(columns[j]);
-                }
-            }
-        }
-        DungeonEditor.Rooms room = (DungeonEditor.Rooms)dungeonChannels[(int)DungeonEditor.Channel.ROOMS][id.x][id.y];
-        print(room);
-        SetRoom(room);
-        CleanGrid();
     }
 
     /* --- INITIALIZERS --- */
@@ -133,15 +110,6 @@ public class RoomEditor : MonoBehaviour {
         int dimensionVertical = sizeVertical - 2 * borderVertical;
         int dimensionHorizontal = sizeHorizontal - 2 * borderHorizontal;
         int[][] subGrid = Geometry2D.ConstructShape(shape, (int)Tiles.EMPTY, (int)Tiles.CENTER, dimensionVertical, dimensionHorizontal);
-        // add the shape sub grid to the grid
-        AttachToGrid(subGrid);
-    }
-
-    public void SetRoom(DungeonEditor.Rooms room) {
-        // create the shape sub grid
-        int dimensionVertical = sizeVertical - 2 * borderVertical;
-        int dimensionHorizontal = sizeHorizontal - 2 * borderHorizontal;
-        int[][] subGrid = Geometry2D.ConstructRoom(room, (int)Tiles.EMPTY, (int)Tiles.CENTER, dimensionVertical, dimensionHorizontal);
         // add the shape sub grid to the grid
         AttachToGrid(subGrid);
     }

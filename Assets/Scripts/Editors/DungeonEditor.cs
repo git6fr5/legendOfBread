@@ -10,48 +10,47 @@ public class DungeonEditor : MonoBehaviour {
 
     /* --- ENUMS --- */
     public enum Channel {
-        ROOMS,
+        SHAPE,
         PATHS,
-        TYPES,
-        NOT_SURE,
+        CHALLENGE,
         channelCount
     };
 
-    public enum Rooms {
+    public enum Shape {
         EMPTY,
         BASIC,
         roomCount
     }
 
-    public enum Type {
+    public enum Challenge {
         EMPTY,
+        ENTRANCE,
         COMBAT,
         PUZZLE,
-        typeCount
+        TRAP,
+        challengeCount
     }
 
     /* --- COMPONENTS --- */
     [Space(5)][Header("IO")]
     public bool read = false;
-    public bool autoSave = false;
-    public string readPath;
-    public string savePath;
+    public bool autoWrite = false;
+    public string fileName;
     string parentPath = "Assets/Resources/Dungeons/";
     string fileType = ".txt";
-
+    // mode
+    [Space(5)][Header("Edit Mode")]
+    public Channel mode = Channel.SHAPE;
+    // maps
     [Space(5)][Header("Maps")]
-    public Tilemap roomMap;
+    public Tilemap shapeMap;
     public Tilemap pathMap;
-    public Tilemap typeMap;
-    public Text textMap;
-
-    [Space(5)][Header("Selectors")]
-    public Channel mode = Channel.ROOMS;
-
+    public Tilemap challengeMap;
+    // tiles
     [Space(5)][Header("Tiles")]
-    public TileBase[] roomTiles;
+    public TileBase[] shapeTiles;
     public TileBase[] pathTiles;
-    public TileBase[] typeTiles;
+    public TileBase[] challengeTiles;
 
     /* --- VARIABLES --- */
     // the dimensions of the dungeon (number of rooms)
@@ -70,7 +69,7 @@ public class DungeonEditor : MonoBehaviour {
 
     /* ---- UNITY --- */
     // runs once before the first frame
-    void OnEnable() {
+    void Start() {
         SetChannels();
         if (read) { Read(); }
         else { SetGrid(); }
@@ -82,7 +81,7 @@ public class DungeonEditor : MonoBehaviour {
     void Update() {
         if (GetInput()) {
             PrintAll();
-            if (autoSave) { Save(); }
+            if (autoWrite) { Write(); }
         }
     }
 
@@ -91,7 +90,7 @@ public class DungeonEditor : MonoBehaviour {
     void Read() {
 
         string dungeon = "";
-        using (StreamReader readFile = new StreamReader(parentPath + readPath + fileType)) {
+        using (StreamReader readFile = new StreamReader(parentPath + fileName + fileType)) {
             dungeon = readFile.ReadToEnd();
         }
 
@@ -111,7 +110,7 @@ public class DungeonEditor : MonoBehaviour {
     }
 
     // saves the dungeon to the given path
-    void Save() {
+    void Write() {
         string saveString = "";
         for (int n = 0; n < (int)Channel.channelCount; n++) {
             for (int i = 0; i < sizeVertical; i++) {
@@ -124,7 +123,7 @@ public class DungeonEditor : MonoBehaviour {
             saveString += "\n";
         }
 
-        using (StreamWriter outputFile = new StreamWriter(Path.Combine(parentPath, savePath + fileType))) {
+        using (StreamWriter outputFile = new StreamWriter(parentPath + fileName + fileType)) {
             outputFile.WriteLine(saveString);
         }
 
@@ -134,13 +133,13 @@ public class DungeonEditor : MonoBehaviour {
     // initializes the components for each channel
     void SetChannels() {
         // the maps
-        maps.Add(roomMap);
+        maps.Add(shapeMap);
         maps.Add(pathMap);
-        maps.Add(typeMap);
+        maps.Add(challengeMap);
         // the tile sets
-        tileSets.Add(roomTiles);
+        tileSets.Add(shapeTiles);
         tileSets.Add(pathTiles);
-        tileSets.Add(typeTiles);
+        tileSets.Add(challengeTiles);
     }
 
     // initialize a grid full of empty tiles
@@ -172,7 +171,7 @@ public class DungeonEditor : MonoBehaviour {
     bool GetInput() {
 
         switch (mode) {
-            case Channel.ROOMS:
+            case Channel.SHAPE:
                 if (Input.GetMouseButtonDown(0)) {
                     // get the coordinates of the click
                     mouseCoord = ClickToGrid();
@@ -203,12 +202,12 @@ public class DungeonEditor : MonoBehaviour {
                 }
                 return false;
 
-            case Channel.TYPES:
+            case Channel.CHALLENGE:
                 if (Input.GetMouseButtonDown(0)) {
                     // get the coordinates of the click
                     mouseCoord = ClickToGrid();
                     // add the room
-                    ChangeType(mouseCoord);
+                    ChangeChallenge(mouseCoord);
                     return true;
                 }
                 return false;
@@ -224,19 +223,19 @@ public class DungeonEditor : MonoBehaviour {
     /* --- CONSTRUCTORS --- */
     void AddRoom(int[] origin) {
         if (CheckLocation(origin)) {
-            int room = dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]];
-            dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]] = (room + 1) % (int)Rooms.roomCount;
+            int room = dungeonChannels[(int)Channel.SHAPE][origin[0]][origin[1]];
+            dungeonChannels[(int)Channel.SHAPE][origin[0]][origin[1]] = (room + 1) % (int)Shape.roomCount;
         }  
     }
 
     void RemoveRoom(int[] origin) {
-        dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]] = (int)Rooms.EMPTY;
+        dungeonChannels[(int)Channel.SHAPE][origin[0]][origin[1]] = (int)Shape.EMPTY;
         // remove all paths attaching to the room as well
     }
 
     bool CheckRoom(int[] origin) {
         if (CheckLocation(origin)) {
-            if (dungeonChannels[(int)Channel.ROOMS][origin[0]][origin[1]] != (int)Rooms.EMPTY) {
+            if (dungeonChannels[(int)Channel.SHAPE][origin[0]][origin[1]] != (int)Shape.EMPTY) {
                 return true;
             }
         }
@@ -252,15 +251,6 @@ public class DungeonEditor : MonoBehaviour {
 
     void EditPath(int[] origin, int[] dest) {
 
-        //if (PathEditor.ManhattanDistance(origin, dest) == 1) {
-        //    if (!CheckRoom(origin)) {
-        //        AddRoom(origin);
-        //    }
-        //    if (!CheckRoom(dest)) {
-        //        AddRoom(dest);
-        //    }
-        //}
-
         if (CheckRoom(origin) && CheckRoom(dest)) {
             int originIndex = dungeonChannels[(int)Channel.PATHS][origin[0]][origin[1]];
             int destIndex = dungeonChannels[(int)Channel.PATHS][dest[0]][dest[1]];
@@ -269,18 +259,18 @@ public class DungeonEditor : MonoBehaviour {
         }
     }
 
-    void ChangeType(int[] origin) {
+    void ChangeChallenge(int[] origin) {
         if (CheckRoom(origin)) {
-            int type = dungeonChannels[(int)Channel.TYPES][origin[0]][origin[1]];
-            dungeonChannels[(int)Channel.TYPES][origin[0]][origin[1]] = (type + 1) % (int)Type.typeCount;
+            int challenge = dungeonChannels[(int)Channel.CHALLENGE][origin[0]][origin[1]];
+            dungeonChannels[(int)Channel.CHALLENGE][origin[0]][origin[1]] = (challenge + 1) % (int)Challenge.challengeCount;
         }
     }
 
     /* --- DISPLAY --- */
     public void PrintAll() {
-        PrintMap(Channel.ROOMS);
+        PrintMap(Channel.SHAPE);
         PrintMap(Channel.PATHS);
-        PrintMap(Channel.TYPES);
+        PrintMap(Channel.CHALLENGE);
     }
 
     public void PrintMap(Channel channel) {
@@ -305,23 +295,6 @@ public class DungeonEditor : MonoBehaviour {
             TileBase tile = tileSets[n][dungeonChannels[n][i][j]];
             maps[n].SetTile(tilePosition, tile);
         }
-    }
-
-    // prints out a grid cell to a tile
-    public void PrintText(Channel channel) {
-        string gridString = "";
-        int[][] roomChannel = dungeonChannels[(int)channel];
-        for (int i = 0; i < sizeVertical; i++) {
-            for (int j = 0; j < sizeHorizontal; j++) {
-                string cellString = roomChannel[i][j].ToString();
-                for (int k = cellString.Length; k < 2; k++) {
-                    cellString += " ";
-                }
-                gridString += cellString;
-            }
-            gridString += "\n";
-        }
-        textMap.text = gridString;
     }
 
     /* --- CONVERSION --- */
