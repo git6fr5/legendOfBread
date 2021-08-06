@@ -295,7 +295,7 @@ Transform:
   - {fileID: 658795244}
   - {fileID: 759923888}
   m_Father: {fileID: 1527134831}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &211000042
 SpriteRenderer:
@@ -460,8 +460,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1253274193
-  m_SortingLayer: 4
+  m_SortingLayerID: 1888002849
+  m_SortingLayer: 1
   m_SortingOrder: 1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -509,6 +509,118 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1001 &632058069
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1527134831}
+    m_Modifications:
+    - target: {fileID: 8447936765217805794, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_Name
+      value: IO
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765565663742, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 1989415969}
+    - target: {fileID: 8447936765788563876, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: OnIO.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1093747047}
+    - target: {fileID: 8447936765788563876, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: OnIO.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Read
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936765788563876, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: OnIO.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: DungeonEditor, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936766794420512, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: OnIO.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1093747047}
+    - target: {fileID: 8447936766794420512, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: OnIO.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Write
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447936766794420512, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+      propertyPath: OnIO.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: DungeonEditor, Assembly-CSharp
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+--- !u!114 &632058070 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8447936766794420512, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+  m_PrefabInstance: {fileID: 632058069}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9be4eb111613bab489579ef40a58c44c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &632058071 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8447936765788563876, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+  m_PrefabInstance: {fileID: 632058069}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9be4eb111613bab489579ef40a58c44c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &632058072 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8447936765217805795, guid: 95b592a4c7e4b9a49b4240c02fa44164, type: 3}
+  m_PrefabInstance: {fileID: 632058069}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &658795243
 GameObject:
   m_ObjectHideFlags: 0
@@ -741,9 +853,9 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1253274193
-  m_SortingLayer: 4
-  m_SortingOrder: 1
+  m_SortingLayerID: 1888002849
+  m_SortingLayer: 1
+  m_SortingOrder: 2
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -974,8 +1086,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1253274193
-  m_SortingLayer: 4
+  m_SortingLayerID: 1888002849
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -1088,7 +1200,7 @@ Transform:
   m_Children:
   - {fileID: 32714133}
   m_Father: {fileID: 1527134831}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1082245936
 MonoBehaviour:
@@ -1242,9 +1354,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 544c49e5b98ff9040a199422db58a8a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  read: 1
-  autoWrite: 0
-  fileName: new_dungeon_2
+  isEditing: 1
   shapeMap: {fileID: 860083568}
   pathMap: {fileID: 248188607}
   challengeMap: {fileID: 665260972}
@@ -1377,6 +1487,7 @@ Transform:
   m_LocalPosition: {x: -7.5, y: -1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 632058072}
   - {fileID: 211000041}
   - {fileID: 1082245935}
   m_Father: {fileID: 1093747045}
@@ -1397,6 +1508,13 @@ MonoBehaviour:
   widgets:
   - {fileID: 211000043}
   - {fileID: 1082245936}
+  - {fileID: 632058071}
+  - {fileID: 632058070}
+--- !u!20 &1989415969 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
+  m_PrefabInstance: {fileID: 2374794517834267801}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2113930244
 GameObject:
   m_ObjectHideFlags: 0
@@ -1466,7 +1584,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1253274193
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: b4037c72c66bd524ba0e5edff2cf5096, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

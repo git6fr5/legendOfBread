@@ -33,6 +33,7 @@ public class RoomEditor : MonoBehaviour {
 
     /* --- COMPONENTS --- */
     [Space(5)][Header("Read/Save")]
+    public bool isEditing = false;
     string path = "Rooms/";
     string fileExtension = ".room";
 
@@ -49,6 +50,8 @@ public class RoomEditor : MonoBehaviour {
     public Shape defaultShape = Shape.SQUARE;
     // exits
     public Directions defaultExits = Directions.LEFT;
+    [HideInInspector] public List<Vector3Int> exitLocations = new List<Vector3Int>();
+    [HideInInspector] public List<int[]> exitID = new List<int[]>();
 
     /* --- VARIABLES --- */
     // mode
@@ -73,31 +76,68 @@ public class RoomEditor : MonoBehaviour {
     // runs every time this is activated
     void Start() {
         SetChannels();
-        SetGrid();
         SetOffset();
-        SetBase();
-        PrintAll();
-    }
-
-    // runs once every frame
-    void Update() {
-        if (GetInput()) {
+        if (isEditing) {
+            SetGrid();
+            AddShape(defaultShape, Channel.GROUND, false);
+            SetBase();
             PrintAll();
         }
     }
 
+    // runs once every frame
+    void Update() {
+        if (isEditing) {
+            if (GetInput()) {
+                PrintAll();
+            }
+        }
+    }
+
     /* --- FILES --- */
-    public void Read() {
+    public void Read(string fileName) {
         // temp
-        SetGrid();
+        print("Reading from File");
+        string room = "";
+        using (StreamReader readFile = new StreamReader(GameRules.Path + path + fileName + fileExtension)) {
+            room = readFile.ReadToEnd();
+        }
+
+        string[] channels = room.Split('\n');
+        roomChannels = new int[channels.Length - 1][][];
+        for (int n = 0; n < channels.Length - 1; n++) {
+            string[] rows = channels[n].Split('\t');
+            roomChannels[n] = new int[rows.Length - 1][];
+            for (int i = 0; i < rows.Length - 1; i++) {
+                string[] columns = rows[i].Split(' ');
+                roomChannels[n][i] = new int[columns.Length - 1];
+                for (int j = 0; j < columns.Length - 1; j++) {
+                    roomChannels[n][i][j] = int.Parse(columns[j]);
+                }
+            }
+        }
+
+        SetBase();
+        print(room);
+        PrintAll();
     }
 
     public void Write(string fileName) {
-        // temp
+        if (!isEditing) { return; }
+
         print("Writing to File");
-        print(fileName);
-        string saveString = "hello";
-        using (StreamWriter outputFile = new StreamWriter(GameRules.Path + path + fileName + ".txt")) {
+        string saveString = "";
+        for (int n = 0; n < (int)Channel.channelCount; n++) {
+            for (int i = 0; i < sizeVertical; i++) {
+                for (int j = 0; j < sizeHorizontal; j++) {
+                    saveString += roomChannels[n][i][j].ToString();
+                    saveString += " ";
+                }
+                saveString += "\t";
+            }
+            saveString += "\n";
+        }
+        using (StreamWriter outputFile = new StreamWriter(GameRules.Path + path + fileName + fileExtension)) {
             outputFile.WriteLine(saveString);
         }
 
@@ -140,27 +180,35 @@ public class RoomEditor : MonoBehaviour {
 
     void SetBase() {
         AddShape(defaultShape, Channel.WALL, true);
-        AddShape(defaultShape, Channel.GROUND, false);
         SetExits();
-        CleanChannel(Channel.WALL);
     }
 
     void SetExits() {
+        exitLocations = new List<Vector3Int>();
+        exitID = new List<int[]>();
         if (Coordinates.CheckPath((int)defaultExits, Directions.RIGHT)) {
             int[] point = new int[] { (int)(sizeVertical / 2), (int)(sizeHorizontal - 1) };
-            AddPoint(point, Channel.WALL, Tiles.EMPTY);
+            AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
+            exitLocations.Add(GridToTileMap(point[0], point[1]));
+            exitID.Add(new int[] { 0, 1 });
         }
         if (Coordinates.CheckPath((int)defaultExits, Directions.UP)) {
             int[] point = new int[] { (int)(sizeVertical - 1), (int)(sizeHorizontal / 2) };
-            AddPoint(point, Channel.WALL, Tiles.EMPTY);
+            AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
+            exitLocations.Add(GridToTileMap(point[0], point[1]));
+            exitID.Add(new int[] { -1, 0 });
         }
         if (Coordinates.CheckPath((int)defaultExits, Directions.LEFT)) {
             int[] point = new int[] { (int)(sizeVertical / 2), 0 };
-            AddPoint(point, Channel.WALL, Tiles.EMPTY);
+            AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
+            exitLocations.Add(GridToTileMap(point[0], point[1]));
+            exitID.Add(new int[] { 0, -1 });
         }
         if (Coordinates.CheckPath((int)defaultExits, Directions.DOWN)) {
             int[] point = new int[] { 0, (int)(sizeHorizontal / 2) };
-            AddPoint(point, Channel.WALL, Tiles.EMPTY);
+            AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
+            exitLocations.Add(GridToTileMap(point[0], point[1]));
+            exitID.Add(new int[] { 1, 0 });
         }
     }
 
@@ -187,25 +235,25 @@ public class RoomEditor : MonoBehaviour {
 
     /* --- CONSTRUCTION --- */
     // adds a point at the given coordinates
-    public void AddPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER) {
+    public void AddPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER, bool clean = true) {
         if (PointInGrid(point)) {
             print("Adding Point");
             roomChannels[(int)channel][point[0]][point[1]] = (int)tile;
         }
-        CleanChannel(channel);
+        if (clean) { CleanChannel(channel); }
     }
 
     // adds a point at the given coordinates
-    public void EditPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER) {
+    public void EditPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER, bool clean = true) {
         if (PointWithinGrid(point)) {
             print("Editing Point");
             roomChannels[(int)channel][point[0]][point[1]] = (int)tile;
         }
-        CleanChannel(channel);
+        if (clean) { CleanChannel(channel); }
     }
 
     // add a shape sub grid
-    public void AddShape(Shape shape, Channel channel, bool isBorder = false) {
+    public void AddShape(Shape shape, Channel channel, bool isBorder = false, bool clean = true) {
         // create the shape sub grid
         int dimensionVertical = sizeVertical;
         int dimensionHorizontal = sizeHorizontal;
@@ -216,6 +264,7 @@ public class RoomEditor : MonoBehaviour {
         int[][] subGrid = Geometry.ConstructBase(shape, (int)Tiles.EMPTY, (int)Tiles.CENTER, dimensionVertical, dimensionHorizontal, isBorder);
         // add the shape sub grid to the grid
         AttachToGrid(subGrid, channel, isBorder);
+        if (clean) { CleanChannel(channel); }
     }
 
     // attach a sub grid to the grid
@@ -236,7 +285,6 @@ public class RoomEditor : MonoBehaviour {
                 }
             }
         }
-        CleanChannel(channel);
     }
 
     // iterate through the grid and clean each cell

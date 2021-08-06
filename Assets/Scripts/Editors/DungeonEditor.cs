@@ -34,11 +34,9 @@ public class DungeonEditor : MonoBehaviour {
 
     /* --- COMPONENTS --- */
     [Space(5)][Header("IO")]
-    public bool read = false;
-    public bool autoWrite = false;
-    public string fileName;
-    string parentPath = "Assets/Resources/Dungeons/";
-    string fileType = ".txt";
+    public bool isEditing = false;
+    string path = "Dungeons/";
+    string fileExtension = ".dungeon";
     // maps
     [Space(5)][Header("Maps")]
     public Tilemap shapeMap;
@@ -72,26 +70,28 @@ public class DungeonEditor : MonoBehaviour {
     // runs once before the first frame
     void Start() {
         SetChannels();
-        if (read) { Read(); }
-        else { SetGrid(); }
         SetOffset();
-        PrintAll();
+        if (isEditing) {
+            SetGrid();
+            PrintAll();
+        }
     }
 
     // runs once every frame
     void Update() {
-        if (GetInput()) {
-            PrintAll();
-            if (autoWrite) { Write(); }
-        }
+        if (isEditing) {
+            if (GetInput()) {
+                PrintAll();
+            }
+        }    
     }
 
     /* --- FILES --- */
     // reads the dungeon from the given path
-    void Read() {
-
+    public void Read(string fileName) {
+        print("Reading from File");
         string dungeon = "";
-        using (StreamReader readFile = new StreamReader(parentPath + fileName + fileType)) {
+        using (StreamReader readFile = new StreamReader(GameRules.Path + path + fileName + fileExtension)) {
             dungeon = readFile.ReadToEnd();
         }
 
@@ -108,10 +108,16 @@ public class DungeonEditor : MonoBehaviour {
                 }
             }
         }
+        if (isEditing) {
+            PrintAll();
+        }
     }
 
     // saves the dungeon to the given path
-    void Write() {
+    public void Write(string fileName) {
+        if (!isEditing) { return; }
+
+        print("Writing to File");
         string saveString = "";
         for (int n = 0; n < (int)Channel.channelCount; n++) {
             for (int i = 0; i < sizeVertical; i++) {
@@ -124,7 +130,7 @@ public class DungeonEditor : MonoBehaviour {
             saveString += "\n";
         }
 
-        using (StreamWriter outputFile = new StreamWriter(parentPath + fileName + fileType)) {
+        using (StreamWriter outputFile = new StreamWriter(GameRules.Path + path + fileName + fileExtension)) {
             outputFile.WriteLine(saveString);
         }
 

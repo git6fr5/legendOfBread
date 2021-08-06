@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Container that handles being attacked
-public class Hitbox : Container2D
+public class Hitbox : Container
 {
     public Hitbox() {}
 

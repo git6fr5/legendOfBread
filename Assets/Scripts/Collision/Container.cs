@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Container2D : MonoBehaviour
+public class Container : MonoBehaviour
 {
     /* --- DEBUG --- */
    [Space(5)][Header("Debugging")]
