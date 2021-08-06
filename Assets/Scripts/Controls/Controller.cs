@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using Direction = State.Direction;
+
 // Gathers the inputs and affects the state of the character based on the inputs
 public class Controller : MonoBehaviour
 {
@@ -14,15 +16,17 @@ public class Controller : MonoBehaviour
 
     /* --- VARIABLES --- */
     // horizontal
-    public int horizontalMove = 0;
-    public int verticalMove = 0;
+    public Vector2 movementVector = Vector2.zero;
 
     /* --- UNITY --- */
     void Start() { 
     }
+    
+    void Update() {
+        GetInput();
+    }
 
     void FixedUpdate() {
-        GetInput();
         FaceDirection();
         Move();
     }
@@ -34,8 +38,8 @@ public class Controller : MonoBehaviour
 
     void Move() {
         // Apply the movement
-        if (horizontalMove != 0 || verticalMove != 0) {
-            Vector2 deltaPosition = (new Vector2(horizontalMove, verticalMove).normalized) * GameRules.PixelsPerUnit * state.moveSpeed * Time.fixedDeltaTime;
+        if (movementVector != Vector2.zero) {
+            Vector2 deltaPosition = movementVector.normalized * GameRules.PixelsPerUnit * state.moveSpeed * Time.fixedDeltaTime;
             state.transform.position = state.transform.position + (Vector3)deltaPosition;
             state.isMoving = true;
         }
@@ -45,18 +49,18 @@ public class Controller : MonoBehaviour
     }
 
     void FaceDirection() {
-        if (horizontalMove == 1) {
-            state.direction = State.Direction.RIGHT;
+        if (movementVector.x == 1) {
+            state.direction = Direction.RIGHT;
         }
-        else if (horizontalMove == -1) {
-            state.direction = State.Direction.LEFT;
+        else if (movementVector.y == 1) {
+            state.direction = Direction.UP;
         }
-        else if (verticalMove == 1) {
-            state.direction = State.Direction.UP;
+        else if (movementVector.x == -1) {
+            state.direction = Direction.LEFT;
         }
-        else if (verticalMove == -1) {
-            state.direction = State.Direction.DOWN;
-        }
+        else if (movementVector.y == -1) {
+            state.direction = Direction.DOWN;
+        }           
     }
 
 }

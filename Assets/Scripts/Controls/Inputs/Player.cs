@@ -5,19 +5,43 @@ using UnityEngine;
 public class Player : Controller
 {
     /* --- VARIABLES --- */
-    public KeyCode rightMove = KeyCode.D;
-    public KeyCode leftMove = KeyCode.A;
-    public KeyCode upMove = KeyCode.W;
-    public KeyCode downMove = KeyCode.S;
+    public Dictionary<KeyCode, Vector2> movementKeys = new Dictionary<KeyCode, Vector2>() {
+        { KeyCode.W, Vector2.up },
+        { KeyCode.A, -Vector2.right },
+        { KeyCode.S, -Vector2.up },
+        { KeyCode.D, Vector2.right }
+    };
+    public KeyCode lastPressedKey = KeyCode.W;
+
 
     /* --- OVERRIDE --- */
     public override void GetInput() {
         // move 
-        horizontalMove = 0; verticalMove = 0;
-        if (Input.GetKey(rightMove)) { horizontalMove = 1; }
-        else if (Input.GetKey(leftMove)) { horizontalMove = -1; }
-        else if (Input.GetKey(upMove)) { verticalMove = 1; }
-        else if (Input.GetKey(downMove)) { verticalMove = -1; }
+        movementVector = Vector2.zero;
+
+        // get the last pressed key
+        foreach (KeyValuePair<KeyCode, Vector2> movement in movementKeys) {
+            if (Input.GetKeyDown(movement.Key)) {
+                print("pressed a new key");
+                lastPressedKey = movement.Key;
+            }
+        }
+
+        // prioritize the last pressed key
+        if (Input.GetKey(lastPressedKey)) {
+            movementVector = movementKeys[lastPressedKey];
+            return;
+        }
+
+        // check through the other keys
+        foreach (KeyValuePair<KeyCode, Vector2> movement in movementKeys) {
+            if (Input.GetKey(movement.Key)) {
+                movementVector = movement.Value;
+                return;
+            }
+        }
+
+        
 
     }
 }
