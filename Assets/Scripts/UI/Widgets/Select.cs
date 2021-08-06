@@ -10,10 +10,6 @@ public class Select : Widget
 
     protected int index;
 
-    void OnMouseDown() {
-        Activate();
-    }
-
     public override void Activate() {
         OnSelect.Invoke(index);
     }

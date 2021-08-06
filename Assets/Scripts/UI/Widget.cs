@@ -6,6 +6,10 @@ public class Widget : MonoBehaviour {
     
     public Menu menu;
 
+    void OnMouseDown() {
+        Activate();
+    }
+
     public virtual void Activate() {
         //
     }

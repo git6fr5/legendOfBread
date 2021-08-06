@@ -11,11 +11,6 @@ public class Toggle : Widget {
         Deactivate();
     }
 
-    void OnMouseDown() {
-        menu.DeactivateAll();
-        SetToggle(!isToggled);
-    }
-
     void SetToggle(bool _toggle) {
         isToggled = _toggle;
         for (int i = 0; i < selections.Length; i++) {
@@ -24,7 +19,8 @@ public class Toggle : Widget {
     }
 
     public override void Activate() {
-        SetToggle(true);
+        menu.DeactivateAll();
+        SetToggle(!isToggled);
     }
 
     public override void Deactivate() {

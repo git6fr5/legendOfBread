@@ -33,10 +33,8 @@ public class RoomEditor : MonoBehaviour {
 
     /* --- COMPONENTS --- */
     [Space(5)][Header("Read/Save")]
-    public bool read = false;
-    public bool autoWrite = false;
-    public string readPath;
-    public string savePath;
+    string path = "Rooms/";
+    string fileExtension = ".room";
 
     [Space(5)][Header("Maps")]
     public Tilemap groundMap;
@@ -75,8 +73,7 @@ public class RoomEditor : MonoBehaviour {
     // runs every time this is activated
     void Start() {
         SetChannels();
-        if (read) { Read(); }
-        else { SetGrid(); }
+        SetGrid();
         SetOffset();
         SetBase();
         PrintAll();
@@ -86,18 +83,24 @@ public class RoomEditor : MonoBehaviour {
     void Update() {
         if (GetInput()) {
             PrintAll();
-            if (autoWrite) { Write(); }
         }
     }
 
     /* --- FILES --- */
-    void Read() {
+    public void Read() {
         // temp
         SetGrid();
     }
 
-    void Write() {
+    public void Write(string fileName) {
         // temp
+        print("Writing to File");
+        print(fileName);
+        string saveString = "hello";
+        using (StreamWriter outputFile = new StreamWriter(GameRules.Path + path + fileName + ".txt")) {
+            outputFile.WriteLine(saveString);
+        }
+
     }
 
     /* --- INITIALIZERS --- */
@@ -195,7 +198,7 @@ public class RoomEditor : MonoBehaviour {
     // adds a point at the given coordinates
     public void EditPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER) {
         if (PointWithinGrid(point)) {
-            print("Adding Point");
+            print("Editing Point");
             roomChannels[(int)channel][point[0]][point[1]] = (int)tile;
         }
         CleanChannel(channel);
@@ -335,7 +338,9 @@ public class RoomEditor : MonoBehaviour {
 
     // checks if a coordinate is in the grid
     public bool PointWithinGrid(int[] point) {
-        bool isInGrid = (point[1] < sizeHorizontal + 1 && point[1] >= 1 && point[0] < sizeVertical + 1 && point[0] >= 1);
+        bool isInHor = (point[1] < sizeHorizontal - borderHorizontal && point[1] >= borderHorizontal);
+        bool isInVert = (point[0] < sizeVertical - borderVertical && point[0] >= borderVertical);
+        bool isInGrid = (isInHor && isInVert);
         if (!isInGrid) {
             print(point[0] + ", " + point[1] + " was not within the grid");
         }
