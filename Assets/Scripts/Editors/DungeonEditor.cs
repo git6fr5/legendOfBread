@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 
+using Directions = Coordinates.Directions;
+
 public class DungeonEditor : MonoBehaviour {
 
     /* --- ENUMS --- */
@@ -37,9 +39,6 @@ public class DungeonEditor : MonoBehaviour {
     public string fileName;
     string parentPath = "Assets/Resources/Dungeons/";
     string fileType = ".txt";
-    // mode
-    [Space(5)][Header("Edit Mode")]
-    public Channel mode = Channel.SHAPE;
     // maps
     [Space(5)][Header("Maps")]
     public Tilemap shapeMap;
@@ -52,6 +51,9 @@ public class DungeonEditor : MonoBehaviour {
     public TileBase[] challengeTiles;
 
     /* --- VARIABLES --- */
+    // mode
+    [Space(5)][Header("Edit Mode")]
+    public Channel mode = Channel.SHAPE;
     // the dimensions of the dungeon (number of rooms)
     [Space(5)][Header("Dungeon Dimensions")]
     [HideInInspector] public int[][][] dungeonChannels;
@@ -155,7 +157,7 @@ public class DungeonEditor : MonoBehaviour {
         }
     }
 
-    // initialize the offset of tilemap
+    // initialize the offset of tile map
     void SetOffset() {
         // this will do weird stuff if the transform positions arent at integers
         horOffset = (int)(sizeHorizontal / 2 + transform.position.x);
@@ -238,33 +240,30 @@ public class DungeonEditor : MonoBehaviour {
         dungeonChannels[(int)Channel.CHALLENGE][origin[0]][origin[1]] = (int)Challenge.EMPTY;
 
         // remove all paths attaching to the room as well
-        dungeonChannels[(int)Channel.PATHS][origin[0]][origin[1]] = (int)Coordinates.Directions.EMPTY;
+        dungeonChannels[(int)Channel.PATHS][origin[0]][origin[1]] = (int)Directions.EMPTY;
 
         int i = origin[0];
         int j = origin[1];
         if (CheckRoom(new int[] { i, j - 1 })) {
             // remove the right path from the room on the left
             int pathIndex = dungeonChannels[(int)Channel.PATHS][i][j - 1];
-            int newIndex = Coordinates.RemoveRightPath(pathIndex);
-            dungeonChannels[(int)Channel.PATHS][i][j - 1] = newIndex;
+            dungeonChannels[(int)Channel.PATHS][i][j - 1] = Coordinates.RemovePath(pathIndex, Directions.RIGHT);
         }
         if (CheckRoom(new int[] { i + 1, j })) {
             // remove the up path from the room below
             int pathIndex = dungeonChannels[(int)Channel.PATHS][i + 1][j];
-            int newIndex = Coordinates.RemoveUpPath(pathIndex);
-            dungeonChannels[(int)Channel.PATHS][i + 1][j] = newIndex;
+            dungeonChannels[(int)Channel.PATHS][i + 1][j] = Coordinates.RemovePath(pathIndex, Directions.UP);
         }
         if (CheckRoom(new int[] { i, j + 1 })) {
             // remove the left path from the room on the right
             int pathIndex = dungeonChannels[(int)Channel.PATHS][i][j + 1];
-            int newIndex = Coordinates.RemoveLeftPath(pathIndex);
-            dungeonChannels[(int)Channel.PATHS][i][j + 1] = newIndex;
+            dungeonChannels[(int)Channel.PATHS][i][j + 1] = Coordinates.RemovePath(pathIndex, Directions.LEFT);
+
         }
         if (CheckRoom(new int[] { i - 1, j })) {
             // remove the down path from the room above
             int pathIndex = dungeonChannels[(int)Channel.PATHS][i - 1][j];
-            int newIndex = Coordinates.RemoveDownPath(pathIndex);
-            dungeonChannels[(int)Channel.PATHS][i - 1][j] = newIndex;
+            dungeonChannels[(int)Channel.PATHS][i - 1][j] = Coordinates.RemovePath(pathIndex, Directions.DOWN);
         }
     }
 

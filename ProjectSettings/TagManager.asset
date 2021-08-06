@@ -41,7 +41,7 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Boundary
+  - name: Background
     uniqueID: 1888002849
     locked: 0
   - name: Ground
@@ -49,6 +49,9 @@ TagManager:
     locked: 0
   - name: Characters
     uniqueID: 1729295475
+    locked: 0
+  - name: Foreground
+    uniqueID: 4285774695
     locked: 0
   - name: UI
     uniqueID: 3041693103

@@ -7,14 +7,25 @@ public class Geometry {
 
     /* --- METHODS --- */
     // constructs the given shape
-    public static int[][] ConstructBase(Shape shape, int backgroundTileID, int fillTileID, int vertical, int horizontal) {
+    public static int[][] ConstructBase(Shape shape, int backgroundTileID, int fillTileID, int vertical, int horizontal, bool isBorder = false) {
         switch (shape) {
             case Shape.SQUARE:
                 Debug.Log("Constructing Square");
-                return Square(backgroundTileID, fillTileID, vertical, horizontal);
+                if (!isBorder) {
+                    return Square(backgroundTileID, fillTileID, vertical, horizontal);
+                }
+                else {
+                    return SquareBorder(backgroundTileID, fillTileID, vertical, horizontal);
+                }
             case Shape.HORIZONTAL_EVEN_RECTANGLES:
-                Debug.Log("Constructing Square");
-                return HorizontalEvenRectangles(backgroundTileID, fillTileID, vertical, horizontal);
+                Debug.Log("Constructing Horizontal Rectangles");
+                if (!isBorder) {
+                    return Square(backgroundTileID, fillTileID, vertical, horizontal);
+                }
+                else {
+                    // should be border here
+                    return HorizontalEvenRectangles(backgroundTileID, fillTileID, vertical, horizontal);
+                }
             default:
                 Debug.Log("Unknown Shape");
                 return new int[0][];
@@ -30,6 +41,24 @@ public class Geometry {
             for (int j = 0; j < square[i].Length; j++) {
                 square[i][j] = backgroundTileID;
             }
+        }
+        return square;
+    }
+
+    // creates a square sub grid
+    public static int[][] SquareBorder(int backgroundTileID, int fillTileID, int vertical, int horizontal) {
+        // initialize the grid
+        int[][] square = new int[vertical][];
+        for (int i = 0; i < square.Length; i++) {
+            square[i] = new int[horizontal];
+        }
+        // proceeds on the assumption that this is a square
+        int length = square[0].Length;
+        for (int i = 0; i < length; i++) {
+            square[i][0] = fillTileID;
+            square[i][length-1] = fillTileID;
+            square[0][i] = fillTileID;
+            square[length - 1][i] = fillTileID;
         }
         return square;
     }
@@ -59,7 +88,7 @@ public class Geometry {
         }
 
         int boundary = (int)Mathf.Floor(vertical / 2);
-        for (int i = 0; i < boundary - 1; i++) {
+        for (int i = 0; i < boundary; i++) {
             for (int j = 0; j < horizontalEvenRect[i].Length; j++) {
                 horizontalEvenRect[i][j] = fillTileID;
             }

@@ -1209,7 +1209,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1093747044}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2113930245}
@@ -1245,7 +1245,6 @@ MonoBehaviour:
   read: 1
   autoWrite: 0
   fileName: new_dungeon_2
-  mode: 0
   shapeMap: {fileID: 860083568}
   pathMap: {fileID: 248188607}
   challengeMap: {fileID: 665260972}
@@ -1281,6 +1280,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b9fe25a2c36bef34daf8217e69a3ffe5, type: 2}
   - {fileID: 11400000, guid: 4968e5573529dbb42abc5d7e9979809f, type: 2}
   - {fileID: 11400000, guid: 317a493990cd1a3408059fdc21d27951, type: 2}
+  mode: 0
   sizeVertical: 7
   sizeHorizontal: 7
 --- !u!1 &1377806608
@@ -1487,34 +1487,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2374794517374461840, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461840, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461840, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -10
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461840, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461840, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461840, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461840, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461840, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
@@ -1531,47 +1503,11 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2374794517374461843, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_UpscaleRT
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461843, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
       propertyPath: m_PixelSnapping
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: orthographic size
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_NormalizedViewPortRect.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_NormalizedViewPortRect.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_NormalizedViewPortRect.width
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_NormalizedViewPortRect.height
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
       propertyPath: m_ForceIntoRT
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_BackGroundColor.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_BackGroundColor.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2374794517374461854, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
-      propertyPath: m_BackGroundColor.b
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2374794517374461855, guid: af6108756e51dbb4f8d7ecb839679ec1, type: 3}
