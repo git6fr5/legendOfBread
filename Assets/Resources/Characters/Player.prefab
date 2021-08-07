@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 5755406151009798235}
   m_Layer: 0
   m_Name: Mesh
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -465,12 +465,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   doDebug: 0
   state: {fileID: 3925677551032897840}
-  horizontalMove: 0
-  verticalMove: 0
-  rightMove: 100
-  leftMove: 97
-  upMove: 119
-  downMove: 115
+  movementVector: {x: 0, y: 0}
+  lastPressedKey: 119
 --- !u!50 &3925677551032897842
 Rigidbody2D:
   serializedVersion: 4

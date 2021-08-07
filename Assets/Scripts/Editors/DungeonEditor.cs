@@ -42,6 +42,7 @@ public class DungeonEditor : MonoBehaviour {
     public Tilemap shapeMap;
     public Tilemap pathMap;
     public Tilemap challengeMap;
+    public Minimap minimap;
     // tiles
     [Space(5)][Header("Tiles")]
     public TileBase[] shapeTiles;
@@ -108,6 +109,10 @@ public class DungeonEditor : MonoBehaviour {
                 }
             }
         }
+
+        sizeVertical = dungeonChannels[(int)Channel.SHAPE].Length;
+        sizeHorizontal = dungeonChannels[(int)Channel.SHAPE][0].Length;
+
         if (isEditing) {
             PrintAll();
         }
@@ -283,7 +288,7 @@ public class DungeonEditor : MonoBehaviour {
     }
 
     bool CheckLocation(int[] origin) {
-        if (origin[0] < sizeVertical && origin[1] >= 0 && origin[1] < sizeHorizontal && origin[1] >= 0) {
+        if (origin[0] < sizeVertical && origin[0] >= 0 && origin[1] < sizeHorizontal && origin[1] >= 0) {
             return true;
         }
         return false;
@@ -311,6 +316,7 @@ public class DungeonEditor : MonoBehaviour {
         PrintMap(Channel.SHAPE);
         PrintMap(Channel.PATHS);
         PrintMap(Channel.CHALLENGE);
+        minimap.PrintMap(this);
     }
 
     public void PrintMap(Channel channel) {

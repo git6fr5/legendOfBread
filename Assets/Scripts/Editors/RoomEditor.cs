@@ -193,7 +193,7 @@ public class RoomEditor : MonoBehaviour {
             exitID.Add(new int[] { 0, 1 });
         }
         if (Coordinates.CheckPath((int)defaultExits, Directions.UP)) {
-            int[] point = new int[] { (int)(sizeVertical - 1), (int)(sizeHorizontal / 2) };
+            int[] point = new int[] { 0, (int)(sizeHorizontal / 2) };
             AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
             exitLocations.Add(GridToTileMap(point[0], point[1]));
             exitID.Add(new int[] { -1, 0 });
@@ -205,7 +205,7 @@ public class RoomEditor : MonoBehaviour {
             exitID.Add(new int[] { 0, -1 });
         }
         if (Coordinates.CheckPath((int)defaultExits, Directions.DOWN)) {
-            int[] point = new int[] { 0, (int)(sizeHorizontal / 2) };
+            int[] point = new int[] { (int)(sizeVertical - 1), (int)(sizeHorizontal / 2) };
             AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
             exitLocations.Add(GridToTileMap(point[0], point[1]));
             exitID.Add(new int[] { 1, 0 });

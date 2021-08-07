@@ -13,6 +13,7 @@ public class Dungeon : MonoBehaviour
     /* --- COMPONENTS --- */
     public DungeonEditor dungeonEditor;
     public RoomEditor roomEditor;
+    public Minimap minimap;
 
     // temp
     public Exit exit;
@@ -40,6 +41,7 @@ public class Dungeon : MonoBehaviour
         var roomData = GetRoom(id);
         SetRoom(roomData.Item1, roomData.Item2, roomData.Item3);
         roomID = id;
+        minimap.PrintMapAndPlayer(dungeonEditor, roomID);
     }
 
     (string, Shape, Directions) GetRoom(int[] id) {
