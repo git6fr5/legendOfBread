@@ -9,13 +9,15 @@ public class Animation2D : MonoBehaviour
 
     /* --- VARIABLES --- */
     public float frameRate;
+    public bool isLooping = true;
+
     public int frameIndex = 0;
     public float timer = 0f;
     public bool isPlaying = false;
     public Sprite frame;
     // for derived classes
     public int startIndex = 0; // for derived classes
-    public int frameCount; // for derived classes
+    protected int frameCount; // for derived classes
 
     /* --- UNITY --- */
     void Start() {
@@ -57,6 +59,9 @@ public class Animation2D : MonoBehaviour
         frameIndex = (frameIndex + 1) % (startIndex + frameCount);
         if (frameIndex == 0) {
             frameIndex += startIndex;
+            if (!isLooping) {
+                Stop();
+            }
         }
         SetFrame();
     }

@@ -24,6 +24,12 @@ public class Renderer2D : MonoBehaviour
     }
 
     /* --- METHODS --- */
+    public virtual void Render(State state) {
+        //
+    }
+    
+    // sets the sprite being displayed based on the frame index,
+    // current animation, etc
     public void SetSprite(Sprite _sprite) {
         if (_sprite == spriteRenderer.sprite && _sprite != null){
             return;

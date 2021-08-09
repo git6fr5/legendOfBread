@@ -16,10 +16,10 @@ public class MoveAnimation : Animation2D
     /* --- METHODS --- */
     public void SetDirection(Directions direction) {
         // set the start index to the appropriate index for the direction being moved in
-        startIndex = Compass.ConvertCardinalsToIndex(direction) * frameCount;
+        startIndex = Compass.ConvertCardinalToIndex(direction) * frameCount;
         // if the current frame is not part of the correct animation
         // snap it back to the start of the correct animation
-        if (frameIndex < startIndex || frameIndex > startIndex + frameCount) {
+        if (frameIndex < startIndex || frameIndex >= startIndex + frameCount) {
             SnapToFrame(startIndex);
         }
     }

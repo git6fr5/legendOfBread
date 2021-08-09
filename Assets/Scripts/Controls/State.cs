@@ -12,7 +12,7 @@ public class State : MonoBehaviour {
     // rendering
     [Space(5)]
     [Header("Renderer")]
-    public Character character;
+    public Renderer2D _renderer;
     // controls
     [Space(5)][Header("Controls")]
     public Controller controller;
@@ -40,21 +40,15 @@ public class State : MonoBehaviour {
     }
 
     void LateUpdate() {
-        Render();
+        _renderer.Render(this);
     }
 
     /* --- METHODS --- */
-    void Render() {
-        if (isMoving) {
-            // if we're moving, get the direction and play the animation
-            character.walkingAnimation.SetDirection(direction);
-            character.PlayAnimation(character.walkingAnimation);
-        }
-        else {
-            // stop any animations if necessary
-            character.StopAnimation();
-            character.SetDirectionIdle(direction);
-        }
+    public void Hurt(int damage) {
+
+    }
+
+    public void Knockback(float magnitude, Vector2 direction) {
 
     }
 

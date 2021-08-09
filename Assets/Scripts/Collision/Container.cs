@@ -12,7 +12,7 @@ public class Container : MonoBehaviour
     /* --- COMPONENTS ---*/
     // the tags for what this container collects
     [Space(5)][Header("Tags")]
-    public string[] containerTags;
+    protected string[] containerTags;
 
     /* --- VARIABLES --- */
     public List<Collider2D> container = new List<Collider2D>();

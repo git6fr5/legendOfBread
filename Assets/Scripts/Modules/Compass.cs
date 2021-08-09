@@ -90,8 +90,21 @@ public class Compass : MonoBehaviour {
         return false;
     }
 
-    public static int ConvertCardinalsToIndex(Direction direction) {
+    public static int ConvertCardinalToIndex(Direction direction) {
         return (int)Mathf.Log((int)direction, 2);
+    }
+
+    public static Vector2 DirectionToVector(Direction direction) {
+        int directionIndex = (int)direction;
+        float x = 0; float y = 0;
+        // x
+        if (directionIndex % 8 >= 4) { x = 1; }
+        else if (directionIndex % 2 >= 1) { x = -1; }
+        // y
+        if (directionIndex % 16 >= 8) { y = -1; }
+        else if (directionIndex % 4 >= 2) { y = 1; }
+
+        return new Vector2(x, y);
     }
 
 }

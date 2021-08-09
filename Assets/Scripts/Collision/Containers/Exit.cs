@@ -9,7 +9,7 @@ public class Exit : Container
     [HideInInspector] public int[] exitID = new int[] { 0, 0 };
 
     public Exit() {
-        containerTags = new string[] { "Player" };
+        containerTags = new string[] { "Hitbox" };
     }
 
 

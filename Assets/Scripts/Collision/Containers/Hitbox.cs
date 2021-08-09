@@ -5,7 +5,13 @@ using UnityEngine;
 // Container that handles being attacked
 public class Hitbox : Container
 {
-    public Hitbox() {}
+    public Hitbox() {
+        containerTags = new string[] {
+            "Hitbox"
+        };
+    }
+
+    public State state;
 
     /* --- COMPONENTS --- */
 
@@ -13,15 +19,9 @@ public class Hitbox : Container
 
     /* --- OVERRIDE --- */
     public override void OnAdd(Collider2D collider) {
-    }
-
-    /* --- METHODS --- */
-    public void Hurt(int damage) {
-
-    }
-
-    public void Knockback(float magnitude, Vector2 direction) {
-
+        Hitbox otherHitbox = collider.gameObject.GetComponent<Hitbox>();
+        print(otherHitbox);
+        state.controller.Hit(otherHitbox);
     }
 
 }

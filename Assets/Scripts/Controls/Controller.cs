@@ -27,7 +27,6 @@ public class Controller : MonoBehaviour
     }
 
     void FixedUpdate() {
-        FaceDirection();
         Move();
     }
     
@@ -47,20 +46,9 @@ public class Controller : MonoBehaviour
             state.isMoving = false;
         }
     }
-
-    void FaceDirection() {
-        if (movementVector.x == 1) {
-            state.direction = Direction.RIGHT;
-        }
-        else if (movementVector.y == 1) {
-            state.direction = Direction.UP;
-        }
-        else if (movementVector.x == -1) {
-            state.direction = Direction.LEFT;
-        }
-        else if (movementVector.y == -1) {
-            state.direction = Direction.DOWN;
-        }           
+    
+    public virtual void Hit(Hitbox hit) {
+        //
     }
 
 }

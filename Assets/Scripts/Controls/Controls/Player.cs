@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : Controller
-{
+using Direction = Compass.Direction;
+
+public class Player : Controller {
     /* --- VARIABLES --- */
     public Dictionary<KeyCode, Vector2> movementKeys = new Dictionary<KeyCode, Vector2>() {
         { KeyCode.W, Vector2.up },
@@ -29,6 +30,7 @@ public class Player : Controller
         // prioritize the last pressed key
         if (Input.GetKey(lastPressedKey)) {
             movementVector = movementKeys[lastPressedKey];
+            FaceDirection();
             return;
         }
 
@@ -36,11 +38,25 @@ public class Player : Controller
         foreach (KeyValuePair<KeyCode, Vector2> movement in movementKeys) {
             if (Input.GetKey(movement.Key)) {
                 movementVector = movement.Value;
+                FaceDirection();
                 return;
             }
         }
 
-        
+    }
 
+    void FaceDirection() {
+        if (movementVector.x == 1) {
+            state.direction = Direction.RIGHT;
+        }
+        else if (movementVector.y == 1) {
+            state.direction = Direction.UP;
+        }
+        else if (movementVector.x == -1) {
+            state.direction = Direction.LEFT;
+        }
+        else if (movementVector.y == -1) {
+            state.direction = Direction.DOWN;
+        }
     }
 }
