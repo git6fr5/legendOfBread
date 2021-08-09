@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using Direction = State.Direction;
+using Direction = Compass.Direction;
 
 // Gathers the inputs and affects the state of the character based on the inputs
 public class Controller : MonoBehaviour

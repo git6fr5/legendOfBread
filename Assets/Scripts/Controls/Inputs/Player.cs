@@ -22,7 +22,6 @@ public class Player : Controller
         // get the last pressed key
         foreach (KeyValuePair<KeyCode, Vector2> movement in movementKeys) {
             if (Input.GetKeyDown(movement.Key)) {
-                print("pressed a new key");
                 lastPressedKey = movement.Key;
             }
         }

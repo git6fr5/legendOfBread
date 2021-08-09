@@ -3,15 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+using Direction = Compass.Direction;
+
 // Stores the state of a character
 public class State : MonoBehaviour {
-
-    public enum Direction {
-        RIGHT,
-        UP,
-        LEFT,
-        DOWN
-    }
 
     /* --- COMPONENTS --- */
     // rendering
@@ -44,26 +39,23 @@ public class State : MonoBehaviour {
     void Start() {
     }
 
-    void Update() {
+    void LateUpdate() {
         Render();
     }
 
     /* --- METHODS --- */
     void Render() {
         if (isMoving) {
-            Animation2D animation = null;
-            if ((int)direction < character.moveAnimations.Length) {
-                animation = character.moveAnimations[(int)direction];
-            }
-            character.SetAnimation(animation);
+            // if we're moving, get the direction and play the animation
+            character.walkingAnimation.SetDirection(direction);
+            character.PlayAnimation(character.walkingAnimation);
         }
         else {
-            Sprite sprite = null;
-            if ((int)direction < character.directionSprites.Length) {
-                sprite = character.directionSprites[(int)direction];
-            }
-            character.SetSprite(sprite);
+            // stop any animations if necessary
+            character.StopAnimation();
+            character.SetDirectionIdle(direction);
         }
+
     }
 
 }

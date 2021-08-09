@@ -7,95 +7,51 @@ using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using UnityEngine.Events;
 
-using Shape = DungeonEditor.Shape;
-using Directions = Coordinates.Directions;
+using Shape = Geometry.Shape;
+using Directions = Compass.Direction;
 
-public class RoomEditor : MonoBehaviour {
+using MapChannel = Map.Channel;
 
-    /* --- ENUMS --- */
-    public enum Channel {
-        GROUND,
-        WALL,
-        channelCount
-    };
-
-    // very similar to directions but has
-    // the center option
-    public enum Tiles {
-        EMPTY,
-        CENTER,
-        RIGHT,
-        UP, UP_RIGHT,
-        LEFT, LEFT_RIGHT, LEFT_UP, LEFT_UP_RIGHT,
-        DOWN, DOWN_RIGHT, DOWN_UP, DOWN_UP_RIGHT, DOWN_LEFT, DOWN_LEFT_RIGHT, DOWN_LEFT_UP,
-        DOWN_LEFT_UP_RIGHT
-    };
+public class RoomEditor : Room {
 
     /* --- COMPONENTS --- */
-    [Space(5)][Header("Read/Save")]
-    public bool isEditing = false;
-    string path = "Rooms/";
-    string fileExtension = ".room";
-
-    [Space(5)][Header("Maps")]
-    public Tilemap groundMap;
-    public Tilemap wallMap;
-
-    // layouts
-    [Space(5)][Header("Tiles")]
-    public Layout groundLayout;
-    public Layout wallLayout;
-
     // shape
     public Shape defaultShape = Shape.SQUARE;
     // exits
     public Directions defaultExits = Directions.LEFT;
-    [HideInInspector] public List<Vector3Int> exitLocations = new List<Vector3Int>();
-    [HideInInspector] public List<int[]> exitID = new List<int[]>();
+
+    // tags
+    public Dictionary<MapChannel, int> tagData;
+    public MapChannel tagChannel = MapChannel.SHAPE;
 
     /* --- VARIABLES --- */
     // mode
     [Space(5)][Header("Edit Mode")]
-    public Channel mode = Channel.WALL;
-    // room dimensions 
-    [Space(5)][Header("Room Dimensions")]
-    public Vector2Int id;
-    [HideInInspector] public int[][][] roomChannels;
-    [Range(2, 16)] public int sizeVertical = 7;
-    [Range(2, 16)] public int sizeHorizontal = 7;
-    [Range(1, 32)] public int borderVertical = 4;
-    [Range(1, 32)] public int borderHorizontal = 4;
-    // offset
-    int horOffset = 0;
-    int vertOffset = 0;
-    // lists to store each channels components
-    List<Tilemap> maps = new List<Tilemap>();
-    List<Layout> layouts = new List<Layout>();
+    public Channel brushChannel = Channel.INTERIOR;
+
 
     /* --- UNITY --- */
+
     // runs every time this is activated
     void Start() {
-        SetChannels();
-        SetOffset();
-        if (isEditing) {
-            SetGrid();
-            AddShape(defaultShape, Channel.GROUND, false);
-            SetBase();
-            PrintAll();
-        }
+        SetTags(null);
+        SetGrid();
+
+        AddShape(defaultShape, Channel.GROUND);
+        AddBorder(defaultShape, Channel.WALL);
+
+        PrintRoom();
     }
 
     // runs once every frame
     void Update() {
-        if (isEditing) {
-            if (GetInput()) {
-                PrintAll();
-            }
+        if (GetInput()) {
+            PrintRoom();
         }
     }
 
     /* --- FILES --- */
-    public void Read(string fileName) {
+    public override void Read(string fileName) {
         // temp
         print("Reading from File");
         string room = "";
@@ -117,14 +73,17 @@ public class RoomEditor : MonoBehaviour {
             }
         }
 
-        SetBase();
-        print(room);
-        PrintAll();
+        Dictionary<string, int[]> allTagData = ReadTags();
+        int[] _tagData = null;
+        if (allTagData.ContainsKey(fileName)) {
+            _tagData = allTagData[fileName];
+        }
+        SetTags(_tagData);
+
+        PrintRoom();
     }
 
     public void Write(string fileName) {
-        if (!isEditing) { return; }
-
         print("Writing to File");
         string saveString = "";
         for (int n = 0; n < (int)Channel.channelCount; n++) {
@@ -141,20 +100,69 @@ public class RoomEditor : MonoBehaviour {
             outputFile.WriteLine(saveString);
         }
 
+        UpdateTags(fileName);
+    }
+
+    public void UpdateTags(string fileName) {
+
+        Dictionary<string, int[]> allTagData = ReadTags();
+
+        // this rooms tag data to the correct format
+        int[] _tagData = new int[(int)MapChannel.channelCount];
+        foreach (KeyValuePair<MapChannel, int> tagIndex in tagData) {
+            _tagData[(int)tagIndex.Key] = tagIndex.Value;
+        }
+
+        // find this room if it exists
+        if (allTagData.ContainsKey(fileName)) {
+            allTagData[fileName] = _tagData;
+        }
+        else {
+            allTagData.Add(fileName, _tagData);
+        }
+
+        // write this back into the tag file
+        string writeTagDataString = "";
+        foreach (KeyValuePair<string, int[]> _tags in allTagData) {
+            if (_tags.Key != "") {
+                writeTagDataString += _tags.Key;
+                for (int i = 0; i < _tags.Value.Length; i++) {
+                    writeTagDataString += ("\t" + _tags.Value[i].ToString());
+                }
+                writeTagDataString += "\n";
+            }
+        }
+
+        using (StreamWriter outputFile = new StreamWriter(GameRules.Path + path + tagFile)) {
+            outputFile.Write(writeTagDataString);
+        }
     }
 
     /* --- INITIALIZERS --- */
-    // initialize the channels for this room
-    void SetChannels() {
-        //
-        groundLayout.Organize();
-        wallLayout.Organize();
-        //
-        maps.Add(groundMap);
-        maps.Add(wallMap);
-        //
-        layouts.Add(groundLayout);
-        layouts.Add(wallLayout);
+    // initialize an empty dictionary of tags
+    void SetTags(int[] tagIndices) {
+        if (tagIndices == null) { tagIndices = new int[1]; }
+        tagData = new Dictionary<MapChannel, int>();
+        for (int n = 0; n < (int)MapChannel.channelCount; n++) {
+            if (n < tagIndices.Length) {
+                tagData[(MapChannel)n] = tagIndices[n];
+            }
+            else {
+                tagData[(MapChannel)n] = 0;
+            }
+        }
+    }
+
+    // select a tag channel using the header buttons
+    public void SetTagChannel(int _tagChannel) {
+        tagChannel = (MapChannel)_tagChannel;
+        print((MapChannel)_tagChannel);
+    }
+
+    // set the tag for that channel using the dropdown buttons
+    public void SetTag(int tagIndex) {
+        tagData[tagChannel] = tagIndex;
+        print((Challenge)tagIndex);
     }
 
     // initialize a grid full of empty tiles
@@ -171,60 +179,24 @@ public class RoomEditor : MonoBehaviour {
         }
     }
 
-    // initialize the offset of tile map
-    void SetOffset() {
-        // this will do weird stuff if the transform positions aren't at integers
-        horOffset = (int)(sizeHorizontal / 2 + transform.position.x);
-        vertOffset = (int)(sizeVertical / 2 + transform.position.y);
-    }
-
-    void SetBase() {
-        AddShape(defaultShape, Channel.WALL, true);
-        SetExits();
-    }
-
-    void SetExits() {
-        exitLocations = new List<Vector3Int>();
-        exitID = new List<int[]>();
-        if (Coordinates.CheckPath((int)defaultExits, Directions.RIGHT)) {
-            int[] point = new int[] { (int)(sizeVertical / 2), (int)(sizeHorizontal - 1) };
-            AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
-            exitLocations.Add(GridToTileMap(point[0], point[1]));
-            exitID.Add(new int[] { 0, 1 });
-        }
-        if (Coordinates.CheckPath((int)defaultExits, Directions.UP)) {
-            int[] point = new int[] { 0, (int)(sizeHorizontal / 2) };
-            AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
-            exitLocations.Add(GridToTileMap(point[0], point[1]));
-            exitID.Add(new int[] { -1, 0 });
-        }
-        if (Coordinates.CheckPath((int)defaultExits, Directions.LEFT)) {
-            int[] point = new int[] { (int)(sizeVertical / 2), 0 };
-            AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
-            exitLocations.Add(GridToTileMap(point[0], point[1]));
-            exitID.Add(new int[] { 0, -1 });
-        }
-        if (Coordinates.CheckPath((int)defaultExits, Directions.DOWN)) {
-            int[] point = new int[] { (int)(sizeVertical - 1), (int)(sizeHorizontal / 2) };
-            AddPoint(point, Channel.WALL, Tiles.EMPTY, true);
-            exitLocations.Add(GridToTileMap(point[0], point[1]));
-            exitID.Add(new int[] { 1, 0 });
-        }
-    }
-
     // sets the current channel thats being edited
-    public void SetMode(int selectedChannel) {
-        mode = (Channel)selectedChannel;
+    public void SetBrushChannel(int selectedChannel) {
+        brushChannel = (Channel)selectedChannel;
     }
 
     /* --- INPUT --- */
     bool GetInput() {
 
-        switch (mode) {
-            case Channel.WALL:
+        switch (brushChannel) {
+            case Channel.INTERIOR:
                 if (Input.GetMouseButtonDown(0)) {
                     int[] mouseCoords = ClickToGrid();
-                    EditPoint(mouseCoords, Channel.WALL);
+                    EditPoint(mouseCoords, Channel.INTERIOR);
+                    return true;
+                }
+                if (Input.GetMouseButtonDown(1)) {
+                    int[] mouseCoords = ClickToGrid();
+                    RemovePoint(mouseCoords, Channel.INTERIOR);
                     return true;
                 }
                 return false;
@@ -235,36 +207,40 @@ public class RoomEditor : MonoBehaviour {
 
     /* --- CONSTRUCTION --- */
     // adds a point at the given coordinates
-    public void AddPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER, bool clean = true) {
+    public void AddPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER) {
         if (PointInGrid(point)) {
             print("Adding Point");
             roomChannels[(int)channel][point[0]][point[1]] = (int)tile;
         }
-        if (clean) { CleanChannel(channel); }
+        CleanInterior();
     }
 
     // adds a point at the given coordinates
-    public void EditPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER, bool clean = true) {
+    public void EditPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER) {
         if (PointWithinGrid(point)) {
             print("Editing Point");
             roomChannels[(int)channel][point[0]][point[1]] = (int)tile;
         }
-        if (clean) { CleanChannel(channel); }
+        CleanInterior();
     }
 
     // add a shape sub grid
-    public void AddShape(Shape shape, Channel channel, bool isBorder = false, bool clean = true) {
+    public void AddShape(Shape shape, Channel channel) {
         // create the shape sub grid
-        int dimensionVertical = sizeVertical;
-        int dimensionHorizontal = sizeHorizontal;
-        if (!isBorder) {
-            dimensionVertical -= 2 * borderVertical;
-            dimensionHorizontal -= 2 * borderHorizontal;
-        }
-        int[][] subGrid = Geometry.ConstructBase(shape, (int)Tiles.EMPTY, (int)Tiles.CENTER, dimensionVertical, dimensionHorizontal, isBorder);
+        int dimensionVertical = sizeVertical - 2 * borderVertical;
+        int dimensionHorizontal = sizeHorizontal - 2 * borderHorizontal;
+        int[][] subGrid = Geometry.ShapeGrid(shape, (int)Tiles.EMPTY, (int)Tiles.CENTER, dimensionVertical, dimensionHorizontal);
         // add the shape sub grid to the grid
-        AttachToGrid(subGrid, channel, isBorder);
-        if (clean) { CleanChannel(channel); }
+        AttachToGrid(subGrid, channel);
+    }
+
+    // add a shape sub grid
+    public void AddBorder(Shape shape, Channel channel) {
+        // create the shape sub grid
+        int[][] subGrid = Geometry.BorderGrid(shape, (int)Tiles.EMPTY, (int)Tiles.CENTER, sizeVertical, sizeHorizontal, borderHorizontal, borderVertical);
+        // add the shape sub grid to the grid
+        AttachToGrid(subGrid, channel, true);
+        CleanBorder();
     }
 
     // attach a sub grid to the grid
@@ -288,36 +264,73 @@ public class RoomEditor : MonoBehaviour {
     }
 
     // iterate through the grid and clean each cell
-    public void CleanChannel(Channel channel) {
-        for (int i = 0; i < sizeVertical; i++) {
-            for (int j = 0; j < sizeHorizontal; j++) {
-                CleanCell(i, j, channel);
+    public void CleanInterior() {
+        for (int i = borderVertical; i < sizeVertical - borderVertical; i++) {
+            for (int j = borderHorizontal; j < sizeHorizontal - borderHorizontal; j++) {
+                CleanInteriorCell(i, j);
             }
         }
     }
 
     // check what type of cell it is based on its immediate surroundings
-    public void CleanCell(int i, int j, Channel channel) {
+    public void CleanInteriorCell(int i, int j) {
         // check only the non-empty tiles
         int value = 1; // starting from one to account for the 0th null tile
-        if (roomChannels[(int)channel][i][j] != (int)Tiles.EMPTY) {
+        if (roomChannels[(int)Channel.INTERIOR][i][j] != (int)Tiles.EMPTY) {
             // is top empty
-            if (CellEmpty(i - 1, j, channel)) {
+            if (CellEmpty(i - 1, j, Channel.INTERIOR)) {
                 value += 8;
             }
             // is right empty
-            if (CellEmpty(i, j - 1, channel)) {
+            if (CellEmpty(i, j - 1, Channel.INTERIOR)) {
                 value += 4;
             }
             // is bottom empty
-            if (CellEmpty(i + 1, j, channel)) {
+            if (CellEmpty(i + 1, j, Channel.INTERIOR)) {
                 value += 2;
             }
             // is left empty (i think this might be backwards but it just started working and im scared to mess with it)
-            if (CellEmpty(i, j + 1, channel)) {
+            if (CellEmpty(i, j + 1, Channel.INTERIOR)) {
                 value += 1;
             }
-            roomChannels[(int)channel][i][j] = value;
+            roomChannels[(int)Channel.INTERIOR][i][j] = value;
+        }
+    }
+
+    public void CleanBorder() {
+        for (int i = 1; i < sizeVertical - 1; i++) {
+            for (int j = 1; j < sizeHorizontal - 1; j++) {
+                CleanBorderCell(i, j);
+            }
+        }
+        roomChannels[(int)Channel.WALL][borderHorizontal - 1][borderVertical - 1] = 1 + 8 + 4;
+        roomChannels[(int)Channel.WALL][borderHorizontal - 1][sizeVertical - borderVertical] = 1 + 8 + 1;
+        roomChannels[(int)Channel.WALL][sizeHorizontal - borderHorizontal][borderVertical - 1] = 1 + 2 + 4;
+        roomChannels[(int)Channel.WALL][sizeHorizontal - borderHorizontal][sizeVertical - borderVertical] = 1 + 2 + 1;
+
+    }
+
+    void CleanBorderCell(int i, int j) {
+        // check only the non-empty tiles
+        int value = 1; // starting from one to account for the 0th null tile
+        if (roomChannels[(int)Channel.WALL][i][j] != (int)Tiles.EMPTY) {
+            // is top empty then point towards top
+            if (CellEmpty(i - 1, j, Channel.WALL)) {
+                value += 2;
+            }
+            // if right empty then point right
+            if (CellEmpty(i, j - 1, Channel.WALL)) {
+                value += 1;
+            }
+            // if bottom empty then point down
+            if (CellEmpty(i + 1, j, Channel.WALL)) {
+                value += 8;
+            }
+            // if left empty then point left
+            if (CellEmpty(i, j + 1, Channel.WALL)) {
+                value += 4;
+            }
+            roomChannels[(int)Channel.WALL][i][j] = value;
         }
     }
 
@@ -328,36 +341,6 @@ public class RoomEditor : MonoBehaviour {
             return true;
         }
         return false;
-    }
-
-    /* --- DISPLAY --- */
-    public void PrintAll() {
-        PrintMap(Channel.GROUND);
-        PrintMap(Channel.WALL);
-    }
-
-    public void PrintMap(Channel channel) {
-        for (int i = 0; i < sizeVertical; i++) {
-            for (int j = 0; j < sizeHorizontal; j++) {
-                PrintTile(channel, i, j);
-            }
-        }
-    }
-
-    // prints out a grid cell to a tile
-    public void PrintTile(Channel channel, int i, int j) {
-        // get the tile position from the grid coordinates
-        Vector3Int tilePosition = GridToTileMap(i, j);
-
-        // get the channel we're editing
-        // for now this is just room channel
-        int n = (int)channel;
-
-        // set the tile 
-        if (roomChannels[n][i][j] < layouts[n].tiles.Length) {
-            TileBase tile = layouts[n].tiles[roomChannels[n][i][j]];
-            maps[n].SetTile(tilePosition, tile);
-        }
     }
 
     /* --- CONVERSION --- */
@@ -394,11 +377,5 @@ public class RoomEditor : MonoBehaviour {
         }
         return isInGrid;
     }
-
-    // grid coordinate to tile map position
-    public Vector3Int GridToTileMap(int i, int j) {
-        return new Vector3Int(j - horOffset, -(i - vertOffset + 1), 0);
-    }
-
 
 }

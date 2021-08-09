@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-using Channel = DungeonEditor.Channel;
-using Shape = DungeonEditor.Shape;
+using Channel = Map.Channel;
+using Shape = Geometry.Shape;
+using Directions = Compass.Direction;
 
 public class Minimap : MonoBehaviour
 {
@@ -25,13 +26,13 @@ public class Minimap : MonoBehaviour
         minimapMap.transform.position = new Vector3(horOffset, vertOffset, 0);
     }
 
-    public void PrintMap(DungeonEditor dungeonEditor) {
+    public void PrintMinimap(Map map) {
 
-        for (int i = 0; i < dungeonEditor.sizeVertical; i++) {
-            for (int j = 0; j < dungeonEditor.sizeHorizontal; j++) {
+        for (int i = 0; i < map.sizeVertical; i++) {
+            for (int j = 0; j < map.sizeHorizontal; j++) {
                 Vector3Int tilePosition = GridToTileMap(i, j);
 
-                if (dungeonEditor.dungeonChannels[(int)Channel.SHAPE][i][j] != (int)Shape.EMPTY) {
+                if (map.mapChannels[(int)Channel.SHAPE][i][j] != (int)Shape.EMPTY) {
                     TileBase tile = minimapTile;
                     minimapMap.SetTile(tilePosition, tile);
                 }
@@ -42,21 +43,7 @@ public class Minimap : MonoBehaviour
         }
     }
 
-    public void PrintMapAndPlayer(DungeonEditor dungeonEditor, int[] playerLocation) {
-
-        for (int i = 0; i < dungeonEditor.sizeVertical; i++) {
-            for (int j = 0; j < dungeonEditor.sizeHorizontal; j++) {
-                Vector3Int tilePosition = GridToTileMap(i, j);
-
-                if (dungeonEditor.dungeonChannels[(int)Channel.SHAPE][i][j] != (int)Shape.EMPTY) {
-                    TileBase tile = minimapTile;
-                    minimapMap.SetTile(tilePosition, tile);
-                }
-                else {
-                    minimapMap.SetTile(tilePosition, null);
-                }
-            }
-        }
+    public void PrintMiniplayer(int[] playerLocation) {
 
         Vector3Int playerPosition = GridToTileMap(playerLocation[0], playerLocation[1]);
         minimapMap.SetTile(playerPosition, playerTile);
