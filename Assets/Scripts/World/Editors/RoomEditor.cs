@@ -28,6 +28,7 @@ public class RoomEditor : Room {
     // mode
     [Space(5)][Header("Edit Mode")]
     public Channel brushChannel = Channel.INTERIOR;
+    public int brushIndex = 1;
 
 
     /* --- UNITY --- */
@@ -156,13 +157,13 @@ public class RoomEditor : Room {
     // select a tag channel using the header buttons
     public void SetTagChannel(int _tagChannel) {
         tagChannel = (MapChannel)_tagChannel;
-        print((MapChannel)_tagChannel);
+        // print((MapChannel)_tagChannel);
     }
 
     // set the tag for that channel using the dropdown buttons
     public void SetTag(int tagIndex) {
         tagData[tagChannel] = tagIndex;
-        print((Challenge)tagIndex);
+        // print((Challenge)tagIndex);
     }
 
     // initialize a grid full of empty tiles
@@ -182,6 +183,10 @@ public class RoomEditor : Room {
     // sets the current channel thats being edited
     public void SetBrushChannel(int selectedChannel) {
         brushChannel = (Channel)selectedChannel;
+    }
+
+    public void SetBrushIndex(int index) {
+        brushIndex = index;
     }
 
     /* --- INPUT --- */
@@ -207,21 +212,21 @@ public class RoomEditor : Room {
 
     /* --- CONSTRUCTION --- */
     // adds a point at the given coordinates
-    public void AddPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER) {
+    public void AddPoint(int[] point, Channel channel) {
         if (PointInGrid(point)) {
-            print("Adding Point");
-            roomChannels[(int)channel][point[0]][point[1]] = (int)tile;
+            // print("Adding Point");
+            roomChannels[(int)channel][point[0]][point[1]] = (int)brushIndex;
         }
-        CleanInterior();
+        // CleanInterior();
     }
 
     // adds a point at the given coordinates
     public void EditPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER) {
         if (PointWithinGrid(point)) {
-            print("Editing Point");
-            roomChannels[(int)channel][point[0]][point[1]] = (int)tile;
+            // print("Editing Point");
+            roomChannels[(int)channel][point[0]][point[1]] = (int)brushIndex;
         }
-        CleanInterior();
+        // CleanInterior();
     }
 
     // add a shape sub grid
@@ -354,7 +359,7 @@ public class RoomEditor : Room {
     public int[] PointToGrid(Vector2 point) {
         int i = (int)(-point.y + vertOffset);
         int j = (int)(point.x + horOffset);
-        print(i + ", " + j);
+        //print(i + ", " + j);
         return new int[] { i, j };
     }
 
@@ -362,7 +367,7 @@ public class RoomEditor : Room {
     public bool PointInGrid(int[] point) {
         bool isInGrid = (point[1] < sizeHorizontal && point[1] >= 0 && point[0] < sizeVertical && point[0] >= 0);
         if (!isInGrid) {
-            print(point[0] + ", " + point[1] + " was not in the grid");
+            // print(point[0] + ", " + point[1] + " was not in the grid");
         }
         return isInGrid;
     }
@@ -373,7 +378,7 @@ public class RoomEditor : Room {
         bool isInVert = (point[0] < sizeVertical - borderVertical && point[0] >= borderVertical);
         bool isInGrid = (isInHor && isInVert);
         if (!isInGrid) {
-            print(point[0] + ", " + point[1] + " was not within the grid");
+            // print(point[0] + ", " + point[1] + " was not within the grid");
         }
         return isInGrid;
     }

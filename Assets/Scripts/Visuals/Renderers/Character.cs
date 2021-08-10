@@ -15,7 +15,6 @@ public class Character : Renderer2D
 
     public override void Render(State state) {
         if (state.isMoving) {
-            print("hello");
             // if we're moving, get the direction and play the animation
             walkingAnimation.SetDirection(state.direction);
             PlayAnimation(walkingAnimation);

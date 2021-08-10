@@ -29,7 +29,6 @@ public class Trap : Controller
     }
 
     public override void Hit(Hitbox hit) {
-        print("Hello");
         Activate();
     }
 

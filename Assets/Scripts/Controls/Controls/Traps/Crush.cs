@@ -14,7 +14,6 @@ public class Crush : Trap {
     }
 
     void ChangeDirection() {
-        print("Changing Direction");
         int currDirectionIndex = Compass.ConvertCardinalToIndex(state.direction);
         int newDirectionIndex = (currDirectionIndex + 2) % 4;
         int newDirection = (int)Mathf.Pow(2, newDirectionIndex);
@@ -22,7 +21,6 @@ public class Crush : Trap {
     }
 
     public override void Activate() {
-        print("Activating");
         state._renderer.PlayAnimation(state._renderer.currAnimation);
     }
 

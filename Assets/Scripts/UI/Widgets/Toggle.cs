@@ -20,7 +20,7 @@ public class Toggle : Widget {
 
     public override void Activate() {
         menu.DeactivateAll();
-        SetToggle(!isToggled);
+        SetToggle(true);
     }
 
     public override void Deactivate() {

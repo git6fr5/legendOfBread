@@ -17,6 +17,7 @@ public class Controller : MonoBehaviour
     /* --- VARIABLES --- */
     // horizontal
     public Vector2 movementVector = Vector2.zero;
+    public float rotationSpeed = 0f;
 
     /* --- UNITY --- */
     void Start() { 
@@ -28,6 +29,7 @@ public class Controller : MonoBehaviour
 
     void FixedUpdate() {
         Move();
+        Rotate();
     }
     
     /* --- VIRTUAL --- */
@@ -44,6 +46,15 @@ public class Controller : MonoBehaviour
         }
         else {
             state.isMoving = false;
+        }
+    }
+
+    void Rotate() {
+        // this should just be a normalizable direction to rotate in
+        // and the speed should come from the state
+        if (rotationSpeed != 0f) {
+            float deltaRotation = rotationSpeed * Time.fixedDeltaTime;
+            state.transform.eulerAngles = state.transform.eulerAngles + Vector3.forward * deltaRotation;
         }
     }
     

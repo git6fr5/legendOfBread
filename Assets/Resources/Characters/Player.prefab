@@ -61,12 +61,12 @@ MonoBehaviour:
   - {fileID: 5250438378151091228, guid: 98fcfc5e03a90bc40af45e65c9f35774, type: 3}
   - {fileID: -1258472680374559522, guid: 98fcfc5e03a90bc40af45e65c9f35774, type: 3}
   frameRate: 8
+  isLooping: 1
   frameIndex: 0
   timer: 0
   isPlaying: 0
   frame: {fileID: 0}
   startIndex: 0
-  frameCount: 0
 --- !u!1 &7950938968243428512
 GameObject:
   m_ObjectHideFlags: 0
@@ -115,7 +115,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6474f0d4ec01e654f8a7a61e80653ba0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: {fileID: 7950938969448303761}
+  _renderer: {fileID: 0}
   controller: {fileID: 7950938968243428518}
   body: {fileID: 7950938968243428517}
   hitbox: {fileID: 7950938969628828307}
@@ -170,7 +170,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7950938968785018000}
-  - component: {fileID: 1725698162778621388}
   m_Layer: 0
   m_Name: Mesh
   m_TagString: Player
@@ -192,22 +191,6 @@ Transform:
   m_Father: {fileID: 7950938968243428516}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!58 &1725698162778621388
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7950938968785018003}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.19}
-  serializedVersion: 2
-  m_Radius: 0.35
 --- !u!1 &7950938969448303763
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,7 +20,6 @@ public class Hitbox : Container
     /* --- OVERRIDE --- */
     public override void OnAdd(Collider2D collider) {
         Hitbox otherHitbox = collider.gameObject.GetComponent<Hitbox>();
-        print(otherHitbox);
         state.controller.Hit(otherHitbox);
     }
 

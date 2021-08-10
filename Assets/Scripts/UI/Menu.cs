@@ -7,6 +7,7 @@ public class Menu : MonoBehaviour
     public Widget[] widgets;
 
     public void DeactivateAll() {
+        print("Deactivating all");
         for (int i = 0; i < widgets.Length; i++) {
             widgets[i].Deactivate();
         }
