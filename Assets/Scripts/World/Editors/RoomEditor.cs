@@ -24,7 +24,7 @@ public class RoomEditor : Room {
 
     // tags
     public Dictionary<MapChannel, int> tagData;
-    public Tags tags;
+    public Tools tools;
 
     /* --- VARIABLES --- */
     // mode
@@ -156,9 +156,9 @@ public class RoomEditor : Room {
             }
         }
 
-        tags.shapeTag.sprite = tags.shapeTags[tagData[MapChannel.SHAPE]];
-        tags.pathTag.sprite = tags.pathTags[tagData[MapChannel.PATH]];
-        tags.challengeTag.sprite = tags.challengeTags[tagData[MapChannel.CHALLENGE]];
+        tools.shapeTag.sprite = tools.shapeTags[tagData[MapChannel.SHAPE]];
+        tools.pathTag.sprite = tools.pathTags[tagData[MapChannel.PATH]];
+        tools.challengeTag.sprite = tools.challengeTags[tagData[MapChannel.CHALLENGE]];
 
     }
 
@@ -166,7 +166,8 @@ public class RoomEditor : Room {
     public void SetTag(int tagIndex) {
         // hard set to challenges for the moment
         tagData[MapChannel.CHALLENGE] = tagIndex;
-        tags.challengeTag.sprite = tags.challengeTags[tagIndex];
+        tools.challengeTag.sprite = tools.challengeTags[tagIndex];
+        tools.SetTools((Challenge)tagIndex);
     }
 
     // initialize a grid full of empty tiles

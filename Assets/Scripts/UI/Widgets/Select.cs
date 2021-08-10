@@ -8,7 +8,7 @@ public class Select : Widget
     [System.Serializable] public class SelectEvent : UnityEvent<int> { }
     public SelectEvent OnSelect;
 
-    protected int index;
+    [HideInInspector] public int index;
 
     public override void Activate() {
         OnSelect.Invoke(index);
