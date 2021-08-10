@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using MapChannel = Map.Channel;
+using Challenge = Room.Challenge;
 
 using Shape = Geometry.Shape;
 using Directions = Compass.Direction;
@@ -41,37 +42,40 @@ public class Dungeon : MonoBehaviour
     /* --- FILES --- */
     public void LoadRoom(int[] id) {
         var roomData = GetRoom(id);
-        SetRoom(roomData.Item1, roomData.Item2, roomData.Item3, roomData.Item4);
+        SetRoom(roomData.Item1, roomData.Item2, roomData.Item3, roomData.Item4, roomData.Item5);
         roomID = id;
         map.minimap.PrintMinimap(map);
         map.minimap.PrintMiniplayer(roomID);
     }
 
-    (string, Shape, Directions, int) GetRoom(int[] id) {
+    (string, Shape, Directions, int[], int) GetRoom(int[] id) {
         Shape shape = (Shape)map.mapChannels[(int)MapChannel.SHAPE][id[0]][id[1]];
         Directions exits = (Directions)map.mapChannels[(int)MapChannel.PATH][id[0]][id[1]];
 
         // use these to get an appropriate room
         // but for now
 
-        List<string> tempRoomFiles = new List<string>();
+        List<KeyValuePair<string, int[]>> tempRoomFiles = new List<KeyValuePair<string, int[]>>();
         foreach (KeyValuePair<string, int[]> _tagData in roomsTagData) {
             if (_tagData.Value[(int)MapChannel.CHALLENGE] == map.mapChannels[(int)MapChannel.CHALLENGE][id[0]][id[1]]) {
-                tempRoomFiles.Add(_tagData.Key);
+                tempRoomFiles.Add(_tagData);
+
             }
         }
 
         int _seed = int.Parse(seed.ToString().Substring(2, 2));
         int roomHash = GameRules.HashID(_seed, id);
         int index = (int)(roomHash) % tempRoomFiles.Count;
-        string roomFile = tempRoomFiles[index];
-        return (roomFile, shape, exits, roomHash);
+        string roomFile = tempRoomFiles[index].Key;
+        int[] roomTags = tempRoomFiles[index].Value;
+        return (roomFile, shape, exits, roomTags, roomHash);
     }
 
-    void SetRoom(string roomFile, Shape shape, Directions exits, int roomHash) {
+    void SetRoom(string roomFile, Shape shape, Directions exits, int[] roomTags, int roomHash) {
         room.Read(roomFile);
         room.SetExits(exits);
         room.SetGround(roomHash);
+        room.CreateChallenges((Challenge)roomTags[(int)MapChannel.CHALLENGE]);
 
         for (int i = exitList.Count-1; i >= 0; i--) {
             exitList[i].gameObject.SetActive(false);

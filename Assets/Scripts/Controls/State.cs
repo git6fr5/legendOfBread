@@ -9,6 +9,7 @@ using Direction = Compass.Direction;
 public class State : MonoBehaviour {
 
     /* --- COMPONENTS --- */
+
     // rendering
     [Space(5)]
     [Header("Renderer")]

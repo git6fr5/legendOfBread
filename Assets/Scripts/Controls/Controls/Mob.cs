@@ -2,6 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Menu : MonoBehaviour {
+public class Mob : Controller {
 
 }

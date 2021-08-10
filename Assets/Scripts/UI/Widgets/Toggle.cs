@@ -4,27 +4,19 @@ using UnityEngine;
 
 public class Toggle : Widget {
 
-    public Select[] selections;
+    public GameObject brushes;
     public bool isToggled = false;
 
     void Awake() {
         Deactivate();
     }
 
-    void SetToggle(bool _toggle) {
-        isToggled = _toggle;
-        for (int i = 0; i < selections.Length; i++) {
-            selections[i].gameObject.SetActive(isToggled);
-        }
-    }
-
     public override void Activate() {
-        menu.DeactivateAll();
-        SetToggle(true);
+        isToggled = true;
     }
 
     public override void Deactivate() {
-        SetToggle(false);
+        isToggled = false;
     }
 
 }

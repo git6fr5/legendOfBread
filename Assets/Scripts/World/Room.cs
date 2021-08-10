@@ -38,8 +38,7 @@ public class Room : MonoBehaviour {
         COMBAT,
         TRAP,
         challengeCount
-    }
-
+    };
 
     /* --- COMPONENTS --- */
     [Space(5)]
@@ -160,7 +159,7 @@ public class Room : MonoBehaviour {
     void SetChannels() {
         //
         // groundLayout.Organize();
-        interiorLayout.Organize();
+        // interiorLayout.Organize();
         wallLayout.Organize();
         //
         maps.Add(groundMap);
@@ -246,10 +245,25 @@ public class Room : MonoBehaviour {
         roomChannels[(int)channel][point[0]][point[1]] = (int)Tiles.EMPTY;
     }
 
+    // create the challenges here
+    public void CreateChallenges(Challenge challenge) {
+
+        // access the appropriate array for the challenges
+        // GameObject[] challengeObjects = challenges.GetChallengeObjects[challenge];
+
+        // find out where challenges are and place them
+        for (int i = 0; i < sizeVertical; i++) {
+            for (int j = 0; j < sizeHorizontal; j++) {
+                // instantiate the appropriate challenge type indexed at
+                // int challengeIndex = roomChannels[(int)Channel.INTERIOR][i][j];
+                // instantiate ( challengeObjects[challengeIndex] )
+            }
+        }
+    }
+
     /* --- DISPLAY --- */
-    public void PrintRoom() {
+    public virtual void PrintRoom() {
         PrintChannel(Channel.GROUND);
-        PrintChannel(Channel.INTERIOR);
         PrintChannel(Channel.WALL);
     }
 

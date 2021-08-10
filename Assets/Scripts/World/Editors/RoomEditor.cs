@@ -15,6 +15,8 @@ using MapChannel = Map.Channel;
 public class RoomEditor : Room {
 
     /* --- COMPONENTS --- */
+    public RoomMenu menu;
+
     // shape
     public Shape defaultShape = Shape.SQUARE;
     // exits
@@ -22,7 +24,7 @@ public class RoomEditor : Room {
 
     // tags
     public Dictionary<MapChannel, int> tagData;
-    public MapChannel tagChannel = MapChannel.SHAPE;
+    public Tags tags;
 
     /* --- VARIABLES --- */
     // mode
@@ -80,6 +82,7 @@ public class RoomEditor : Room {
             _tagData = allTagData[fileName];
         }
         SetTags(_tagData);
+        menu.ToggleChallenge((Challenge)tagData[MapChannel.CHALLENGE]);
 
         PrintRoom();
     }
@@ -152,18 +155,18 @@ public class RoomEditor : Room {
                 tagData[(MapChannel)n] = 0;
             }
         }
-    }
 
-    // select a tag channel using the header buttons
-    public void SetTagChannel(int _tagChannel) {
-        tagChannel = (MapChannel)_tagChannel;
-        // print((MapChannel)_tagChannel);
+        tags.shapeTag.sprite = tags.shapeTags[tagData[MapChannel.SHAPE]];
+        tags.pathTag.sprite = tags.pathTags[tagData[MapChannel.PATH]];
+        tags.challengeTag.sprite = tags.challengeTags[tagData[MapChannel.CHALLENGE]];
+
     }
 
     // set the tag for that channel using the dropdown buttons
     public void SetTag(int tagIndex) {
-        tagData[tagChannel] = tagIndex;
-        // print((Challenge)tagIndex);
+        // hard set to challenges for the moment
+        tagData[MapChannel.CHALLENGE] = tagIndex;
+        tags.challengeTag.sprite = tags.challengeTags[tagIndex];
     }
 
     // initialize a grid full of empty tiles
@@ -187,6 +190,7 @@ public class RoomEditor : Room {
 
     public void SetBrushIndex(int index) {
         brushIndex = index;
+        print("Setting Brush Index");
     }
 
     /* --- INPUT --- */
@@ -208,6 +212,13 @@ public class RoomEditor : Room {
             default:
                 return false;
         }
+    }
+
+    /* --- DISPLAY --- */
+    public override void PrintRoom() {
+        PrintChannel(Channel.GROUND);
+        PrintChannel(Channel.INTERIOR);
+        PrintChannel(Channel.WALL);
     }
 
     /* --- CONSTRUCTION --- */

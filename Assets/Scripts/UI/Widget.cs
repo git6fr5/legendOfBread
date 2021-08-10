@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Widget : MonoBehaviour {
     
-    public Menu menu;
-
     void OnMouseDown() {
         Activate();
     }
