@@ -1,56 +1,66 @@
-﻿using System.Collections;
+﻿// system modules
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+// unity modules
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 
+// library modules
+using Priority = Log.Priority;
 using Directions = Compass.Direction;
 using Shape = Geometry.Shape;
 
+// data modules
 using Challenge = Room.Challenge;
 
 public class MapEditor : Map {
 
     /* --- COMPONENTS --- */
-    // maps
-    [Space(5)]
-    [Header("Maps")]
+    
+    // editable maps
+    [Space(5)][Header("Editor Maps")]
     public Tilemap shapeMap;
     public Tilemap pathMap;
     public Tilemap challengeMap;
-    // tiles
-    [Space(5)]
-    [Header("Tiles")]
+
+    // tile palette
+    [Space(5)] [Header("Editor Tiles")]
     public TileBase[] shapeTiles;
     public TileBase[] pathTiles;
     public TileBase[] challengeTiles;
 
     /* --- VARIABLES --- */
-    // mode
-    [Space(5)]
-    [Header("Edit Mode")]
-    public Channel brushChannel = Channel.SHAPE;
-    // mouse
+    
+    // brush
+    [Space(5)] [Header("Edit Brush")]
     int[] mouseCoord;
+    public Channel brushChannel = Channel.SHAPE;
+
     // offset
     int horOffset = 0;
     int vertOffset = 0;
+
     // lists to store each channels components
     List<Tilemap> maps = new List<Tilemap>();
     List<TileBase[]> tileSets = new List<TileBase[]>();
 
     /* ---- UNITY --- */
-    // runs once after compilation
-    void Awake() {
+
+    // runs once on execution
+    protected override void Awake() {
+        Log.Write("Initializing Map Editor", debugPrio, debugTag);
+
+        // initialize the default parameters
         SetChannels();
         SetOffset();
-        SetGrid();
     }
 
     // runs once before the first frame
     void Start() {
+        SetGrid();
         PrintMap();
     }
 
@@ -62,37 +72,17 @@ public class MapEditor : Map {
     }
 
     /* --- FILES --- */
-    // reads the dungeon from the given path
-    public override void Read(string fileName) {
-        print("Reading from File");
-        string dungeon = "";
-        using (StreamReader readFile = new StreamReader(GameRules.Path + path + fileName + fileExtension)) {
-            dungeon = readFile.ReadToEnd();
-        }
 
-        string[] channels = dungeon.Split('\n');
-        mapChannels = new int[channels.Length - 1][][];
-        for (int n = 0; n < channels.Length - 1; n++) {
-            string[] rows = channels[n].Split('\t');
-            mapChannels[n] = new int[rows.Length - 1][];
-            for (int i = 0; i < rows.Length - 1; i++) {
-                string[] columns = rows[i].Split(' ');
-                mapChannels[n][i] = new int[columns.Length - 1];
-                for (int j = 0; j < columns.Length - 1; j++) {
-                    mapChannels[n][i][j] = int.Parse(columns[j]);
-                }
-            }
-        }
-
-        sizeVertical = mapChannels[(int)Channel.SHAPE].Length;
-        sizeHorizontal = mapChannels[(int)Channel.SHAPE][0].Length;
-
+    // open a file from the filename
+    public override void Open(string fileName) {
+        Read(fileName);
         PrintMap();
     }
 
     // saves the dungeon to the given path
     public void Write(string fileName) {
-        print("Writing to File");
+        Log.WriteFile(fileName);
+
         string saveString = "";
         for (int n = 0; n < (int)Channel.channelCount; n++) {
             for (int i = 0; i < sizeVertical; i++) {
@@ -112,12 +102,15 @@ public class MapEditor : Map {
     }
 
     /* --- INITIALIZERS --- */
+
     // initializes the components for each channel
     void SetChannels() {
+
         // the maps
         maps.Add(shapeMap);
         maps.Add(pathMap);
         maps.Add(challengeMap);
+
         // the tile sets
         tileSets.Add(shapeTiles);
         tileSets.Add(pathTiles);
@@ -126,6 +119,7 @@ public class MapEditor : Map {
 
     // initialize the offset of tile map
     void SetOffset() {
+
         // this will do weird stuff if the transform positions aren't at integers
         horOffset = (int)(sizeHorizontal / 2 + transform.position.x);
         vertOffset = (int)(sizeVertical / 2 + transform.position.y);
@@ -133,6 +127,8 @@ public class MapEditor : Map {
 
     // initialize a grid full of empty tiles
     void SetGrid() {
+        Log.Write("Resetting Grid", debugSubPrio, debugTag);
+
         mapChannels = new int[(int)Channel.channelCount][][];
         for (int n = 0; n < (int)Channel.channelCount; n++) {
             mapChannels[n] = new int[sizeVertical][];
@@ -151,20 +147,23 @@ public class MapEditor : Map {
     }
 
     /* --- INPUT --- */
+
+    // gets the user input
     bool GetInput() {
         switch (brushChannel) {
             case Channel.SHAPE:
-                return BrushShape();               
+                return ShapeBrush();               
             case Channel.PATH:
-                return BrushPath();
+                return PathBrush();
             case Channel.CHALLENGE:
-                return BrushChallenge();
+                return ChallengeBrush();
             default:
                 return false;
         }
     }
 
-    bool BrushShape() {
+    // brush to edit shapes in the dungeon
+    bool ShapeBrush() {
         if (Input.GetMouseButtonDown(0)) {
             // get the coordinates of the click
             mouseCoord = ClickToGrid();
@@ -182,7 +181,8 @@ public class MapEditor : Map {
         return false;
     }
 
-    bool BrushPath() {
+    // brush to edit paths in the dungeon
+    bool PathBrush() {
         if (Input.GetMouseButtonDown(0)) {
             // get the coordinates of the click
             mouseCoord = ClickToGrid();
@@ -197,7 +197,8 @@ public class MapEditor : Map {
         return false;
     }
 
-    bool BrushChallenge() {
+    // brush to edit challenges in the dungeon
+    bool ChallengeBrush() {
         if (Input.GetMouseButtonDown(0)) {
             // get the coordinates of the click
             mouseCoord = ClickToGrid();
@@ -209,6 +210,8 @@ public class MapEditor : Map {
     }
 
     /* --- SHAPES --- */
+
+    // adds a shape at the point
     void AddShape(int[] origin) {
         if (PointInGrid(origin)) {
             int room = mapChannels[(int)Channel.SHAPE][origin[0]][origin[1]];
@@ -221,6 +224,7 @@ public class MapEditor : Map {
         }
     }
 
+    // removes a shape from the point
     void RemoveShape(int[] origin) {
         mapChannels[(int)Channel.SHAPE][origin[0]][origin[1]] = (int)Shape.EMPTY;
         mapChannels[(int)Channel.CHALLENGE][origin[0]][origin[1]] = (int)Challenge.EMPTY;
@@ -236,6 +240,7 @@ public class MapEditor : Map {
 
     }
 
+    // checks whether there is a shape at this point
     bool CheckShape(int[] origin) {
         if (PointInGrid(origin)) {
             if (mapChannels[(int)Channel.SHAPE][origin[0]][origin[1]] != (int)Shape.EMPTY) {
@@ -246,6 +251,8 @@ public class MapEditor : Map {
     }
 
     /* --- PATHS --- */
+
+    // edits the path between two cardinally adjacent points
     void EditPath(int[] origin, int[] dest) {
 
         if (CheckShape(origin) && CheckShape(dest)) {
@@ -256,7 +263,7 @@ public class MapEditor : Map {
         }
     }
 
-
+    // removes a path between two cardinally adjacent points
     void RemovePath(int[] origin, Directions direction) {
         if (CheckShape(origin)) {
             // remove the right path from the room on the left
@@ -267,6 +274,8 @@ public class MapEditor : Map {
     }
 
     /* --- CHALLENGES --- */
+
+    // edits the challenge at this points
     void EditChallenge(int[] origin) {
         if (CheckShape(origin)) {
             int challenge = mapChannels[(int)Channel.CHALLENGE][origin[0]][origin[1]];
@@ -275,6 +284,8 @@ public class MapEditor : Map {
     }
 
     /* --- DISPLAY --- */
+
+    // prints the map to the screen
     public void PrintMap() {
         PrintChannel(Channel.SHAPE);
         PrintChannel(Channel.PATH);
@@ -282,6 +293,7 @@ public class MapEditor : Map {
         minimap.PrintMinimap(this);
     }
 
+    // prints a single channel of the map
     public void PrintChannel(Channel channel) {
         for (int i = 0; i < sizeVertical; i++) {
             for (int j = 0; j < sizeHorizontal; j++) {
@@ -290,13 +302,13 @@ public class MapEditor : Map {
         }
     }
 
-    // prints out a grid cell to a tile
+    // prints a single tile of a single channel
     public void PrintTile(Channel channel, int i, int j) {
+
         // get the tile position from the grid coordinates
         Vector3Int tilePosition = GridToTileMap(i, j);
 
         // get the channel we're editing
-        // for now this is just room channel
         int n = (int)channel;
 
         // set the tile 
@@ -307,6 +319,7 @@ public class MapEditor : Map {
     }
 
     /* --- CONVERSION --- */
+
     // mouse click to grid coordinate
     public int[] ClickToGrid() {
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -317,16 +330,12 @@ public class MapEditor : Map {
     public int[] PointToGrid(Vector2 point) {
         int i = (int)(-point.y + vertOffset);
         int j = (int)(point.x + horOffset);
-        // print(i + ", " + j);
         return new int[] { i, j };
     }
 
     // checks if a coordinate is in the grid
     public bool PointInGrid(int[] point) {
         bool isInGrid = (point[1] < sizeHorizontal && point[1] >= 0 && point[0] < sizeVertical && point[0] >= 0);
-        if (!isInGrid) {
-            print(point[0] + ", " + point[1] + " was not in the grid");
-        }
         return isInGrid;
     }
 

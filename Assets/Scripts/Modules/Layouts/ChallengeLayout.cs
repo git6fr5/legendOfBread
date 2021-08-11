@@ -33,7 +33,6 @@ public class ChallengeLayout : Layout {
 
             // add that tile to the tile layout
             tiles[index] = newTile;
-
         }
 
     }

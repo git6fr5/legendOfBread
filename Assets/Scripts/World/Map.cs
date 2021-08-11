@@ -1,19 +1,31 @@
-﻿using System.Collections;
+﻿// system modules
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+// unity modules
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 
-using Directions = Compass.Direction;
+// library modules
+using Priority = Log.Priority;
+using Direction = Compass.Direction;
 using Shape = Geometry.Shape;
 
+// data modules
 using Challenge = Room.Challenge;
 
 public class Map : MonoBehaviour {
 
+    /* --- DEBUG --- */
+    protected static Priority debugPrio = Priority.MAP;
+    protected static Priority debugSubPrio = Priority.MID;
+    protected static string debugTag = "[MAP]: ";
+
     /* --- ENUMS --- */
+
+    // the data that the map needs
     public enum Channel {
         SHAPE,
         PATH,
@@ -22,32 +34,49 @@ public class Map : MonoBehaviour {
     };
 
     /* --- COMPONENTS --- */
+
+    // files
     [Space(5)][Header("IO")]
-    protected string path = "Maps/";
-    protected string fileExtension = ".map";
-    // maps
+    protected static string path = "Maps/";
+    protected static string fileExtension = ".map";
+
+    // minimap
     [Space(5)][Header("Maps")]
     public Minimap minimap;
 
     /* --- VARIABLES --- */
-    // mode
-    [Space(5)][Header("Edit Mode")]
-    public Channel mode = Channel.SHAPE;
-    // the dimensions of the dungeon (number of rooms)
-    [Space(5)][Header("Dungeon Dimensions")]
+
+    // map dimension
+    [Space(5)][Header("Map Dimensions")]
     [HideInInspector] public int[][][] mapChannels;
     [Range(1, 8)] public  int sizeVertical = 7;
     [Range(1, 8)] public int sizeHorizontal = 7;
 
+    /* --- UNITY --- */
+
+    // runs once on execution
+    protected virtual void Awake() {
+        Log.Write("Initializing Map Constructor", debugPrio, debugTag);
+    }
+
     /* --- FILES --- */
-    // reads the dungeon from the given path
+
+    // open a file from the filename
+    public virtual void Open(string fileName) {
+        Read(fileName);
+    }
+
+    // reads data from the file into an array
     public virtual void Read(string fileName) {
-        print("Reading from File");
+        Log.ReadFile(fileName);
+
+        // read the data from the file
         string dungeon = "";
         using (StreamReader readFile = new StreamReader(GameRules.Path + path + fileName + fileExtension)) {
             dungeon = readFile.ReadToEnd();
         }
 
+        // put the data into the appropriate format
         string[] channels = dungeon.Split('\n');
         mapChannels = new int[channels.Length - 1][][];
         for (int n = 0; n < channels.Length - 1; n++) {
@@ -62,6 +91,7 @@ public class Map : MonoBehaviour {
             }
         }
 
+        // set the dimensions of the map
         sizeVertical = mapChannels[(int)Channel.SHAPE].Length;
         sizeHorizontal = mapChannels[(int)Channel.SHAPE][0].Length;
     }

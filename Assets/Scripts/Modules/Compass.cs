@@ -107,4 +107,26 @@ public class Compass : MonoBehaviour {
         return new Vector2(x, y);
     }
 
+    public static Direction VectorToCardinalDirection(Vector3 v) {
+        v = (Vector2)v;
+        float hor = Vector2.Dot(v, Vector2.right);
+        float vert = Vector2.Dot(v, Vector2.up);
+        if (Mathf.Abs(hor) >= Mathf.Abs(vert)) {
+            if (hor >= 0) {
+                return Direction.RIGHT;
+            }
+            else {
+                return Direction.LEFT;
+            }
+        }
+        else {
+            if (vert >= 0) {
+                return Direction.DOWN;
+            }
+            else {
+                return Direction.UP;
+            }
+        }
+    }
+
 }

@@ -648,7 +648,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1767464339898932680}
         m_TargetAssemblyTypeName: RoomEditor, Assembly-CSharp
-        m_MethodName: Read
+        m_MethodName: Open
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -815,7 +815,7 @@ GameObject:
   - component: {fileID: 889061252}
   - component: {fileID: 889061254}
   m_Layer: 0
-  m_Name: WallMap
+  m_Name: Wall Map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -831,7 +831,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 7200560160124506966}
   m_Father: {fileID: 1767464338615908636}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1154,7 +1155,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1767464339898932680}
         m_TargetAssemblyTypeName: RoomEditor, Assembly-CSharp
-        m_MethodName: Write
+        m_MethodName: Save
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1397,7 +1398,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 6088142811222546752}
   m_Father: {fileID: 1767464338615908636}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2076,7 +2078,7 @@ GameObject:
   - component: {fileID: 7288191423374788692}
   - component: {fileID: 96168515391275703}
   m_Layer: 0
-  m_Name: Ground
+  m_Name: Ground Layout
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2140,7 +2142,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 7288191423374788692}
   m_Father: {fileID: 1767464338615908636}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2156,7 +2159,7 @@ GameObject:
   - component: {fileID: 1767464338587257299}
   - component: {fileID: 1767464338587257292}
   m_Layer: 0
-  m_Name: GroundMap
+  m_Name: Ground Map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2215,7 +2218,7 @@ Transform:
   - {fileID: 1637969265}
   - {fileID: 889061251}
   m_Father: {fileID: 1767464339898932678}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1767464338615908637
 GameObject:
@@ -2299,9 +2302,8 @@ Transform:
   - {fileID: 477513824}
   - {fileID: 204318518}
   - {fileID: 1177843560}
-  - {fileID: 6088142811222546752}
   m_Father: {fileID: 1767464339898932678}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1767464339749066919
 GameObject:
@@ -2335,17 +2337,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   emptyBrush: {fileID: 365546405}
   challengeLayout: {fileID: 3801303803748657261}
+  shapeTag: {fileID: 477513825}
   shapeTags:
   - {fileID: -941769597684628784, guid: 2aebedb93f8980c458d243e9f46e0a61, type: 3}
-  shapeTag: {fileID: 477513825}
+  pathTag: {fileID: 204318519}
   pathTags:
   - {fileID: -4799540573422841136, guid: cc311fb3b16cd354b8614e02f9137152, type: 3}
-  pathTag: {fileID: 204318519}
+  challengeTag: {fileID: 1177843561}
   challengeTags:
   - {fileID: 21300000, guid: 61b832bec376b0f40830c4304495218d, type: 3}
   - {fileID: 7199347873815094864, guid: c1d176ed17b6ee648ad173665965dad1, type: 3}
   - {fileID: 3347507749235606559, guid: c1d176ed17b6ee648ad173665965dad1, type: 3}
-  challengeTag: {fileID: 1177843561}
   mobs: []
   traps:
   - {fileID: 6707255280579288543, guid: 687e0f2aa41805f43b96d7dc7a7ab1dc, type: 3}
@@ -2373,10 +2375,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1767464339749066918}
   - {fileID: 1767464338615908636}
+  - {fileID: 1767464339749066918}
   - {fileID: 1767464340336666316}
-  - {fileID: 5607917319597462364}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2410,7 +2411,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01628c558c32e864abeafdbfecc878aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tagFile: rooms.txt
   groundMap: {fileID: 1767464338587257299}
   interiorMap: {fileID: 1637969267}
   wallMap: {fileID: 889061253}
@@ -2419,15 +2419,15 @@ MonoBehaviour:
   wallLayout: {fileID: 2358161166004011273}
   exitLocations: []
   exitRotations: []
-  id: {x: 0, y: 0}
+  id: 0000000000000000
   sizeVertical: 11
   sizeHorizontal: 11
   borderVertical: 2
   borderHorizontal: 2
   menu: {fileID: 1767464340336666318}
+  tools: {fileID: 1767464339749066920}
   defaultShape: 1
   defaultExits: 0
-  tools: {fileID: 1767464339749066920}
   brushChannel: 1
   brushIndex: 1
 --- !u!4 &1767464340336666316
@@ -2494,7 +2494,7 @@ GameObject:
   - component: {fileID: 7200560160124506966}
   - component: {fileID: 2358161166004011273}
   m_Layer: 0
-  m_Name: Wall
+  m_Name: Wall Tiles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2541,7 +2541,7 @@ GameObject:
   - component: {fileID: 6088142811222546752}
   - component: {fileID: 3801303803748657261}
   m_Layer: 0
-  m_Name: ChallengeLayout
+  m_Name: Interior Layout
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2561,22 +2561,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nullTile: {fileID: 11400000, guid: b9fe25a2c36bef34daf8217e69a3ffe5, type: 2}
   tiles: []
---- !u!4 &5607917319597462364
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8663732342103250295}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 7288191423374788692}
-  - {fileID: 7200560160124506966}
-  m_Father: {fileID: 1767464339898932678}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &6088142811222546752
 Transform:
   m_ObjectHideFlags: 0
@@ -2585,13 +2569,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3801303803748657260}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.5, y: -2.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2116818645}
   - {fileID: 562847137}
-  m_Father: {fileID: 1767464339749066918}
-  m_RootOrder: 4
+  m_Father: {fileID: 1637969265}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &7200560160124506966
 Transform:
@@ -2600,12 +2584,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2322794782553526897}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 5607917319597462364}
-  m_RootOrder: 1
+  m_Father: {fileID: 889061251}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &7288191423374788692
 Transform:
@@ -2614,26 +2598,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1428705821780149347}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 5607917319597462364}
+  m_Father: {fileID: 1767464338587257293}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &8663732342103250295
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5607917319597462364}
-  m_Layer: 0
-  m_Name: Layouts
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1

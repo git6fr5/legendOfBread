@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Spinner : Trap {
 
-
+    public Spinner() {
+        id = 2;
+    }
 
 }

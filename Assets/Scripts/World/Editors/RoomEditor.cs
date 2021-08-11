@@ -1,37 +1,43 @@
-﻿using System.Collections;
+﻿// system modules
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+// unity modules
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using UnityEngine.Events;
 
+// library modules
+using Priority = Log.Priority;
 using Shape = Geometry.Shape;
 using Directions = Compass.Direction;
 
+// data modules
 using MapChannel = Map.Channel;
 
 public class RoomEditor : Room {
 
     /* --- COMPONENTS --- */
-    public RoomMenu menu;
 
-    // shape
+    // menu
+    [Space(5)][Header("UI")]
+    public RoomMenu menu;
+    public Tools tools;
+
+    // temp
     public Shape defaultShape = Shape.SQUARE;
-    // exits
     public Directions defaultExits = Directions.LEFT;
 
     // tags
-    public Dictionary<MapChannel, int> tagData;
-    public Tools tools;
+    public Dictionary<MapChannel, int> tagDict;
 
     /* --- VARIABLES --- */
     // mode
     [Space(5)][Header("Edit Mode")]
     public Channel brushChannel = Channel.INTERIOR;
     public int brushIndex = 1;
-
 
     /* --- UNITY --- */
 
@@ -54,41 +60,27 @@ public class RoomEditor : Room {
     }
 
     /* --- FILES --- */
-    public override void Read(string fileName) {
-        // temp
-        print("Reading from File");
-        string room = "";
-        using (StreamReader readFile = new StreamReader(GameRules.Path + path + fileName + fileExtension)) {
-            room = readFile.ReadToEnd();
-        }
 
-        string[] channels = room.Split('\n');
-        roomChannels = new int[channels.Length - 1][][];
-        for (int n = 0; n < channels.Length - 1; n++) {
-            string[] rows = channels[n].Split('\t');
-            roomChannels[n] = new int[rows.Length - 1][];
-            for (int i = 0; i < rows.Length - 1; i++) {
-                string[] columns = rows[i].Split(' ');
-                roomChannels[n][i] = new int[columns.Length - 1];
-                for (int j = 0; j < columns.Length - 1; j++) {
-                    roomChannels[n][i][j] = int.Parse(columns[j]);
-                }
-            }
-        }
-
-        Dictionary<string, int[]> allTagData = ReadTags();
-        int[] _tagData = null;
-        if (allTagData.ContainsKey(fileName)) {
-            _tagData = allTagData[fileName];
-        }
-        SetTags(_tagData);
-        menu.ToggleChallenge((Challenge)tagData[MapChannel.CHALLENGE]);
-
+    // open a file from the filename
+    public override void Open(string fileName) {
+        Read(fileName);
+        GetTags(fileName);
         PrintRoom();
+
+        // temp
+        menu.ToggleChallenge((Challenge)tagDict[MapChannel.CHALLENGE]);
     }
 
-    public void Write(string fileName) {
-        print("Writing to File");
+    // saves all the room data to the necessary places
+    public void Save(string fileName) {
+        Write(fileName);
+        WriteTags(fileName);
+    }
+
+    // writes the array to the given file
+    void Write(string fileName) {
+        Log.WriteFile(fileName);
+
         string saveString = "";
         for (int n = 0; n < (int)Channel.channelCount; n++) {
             for (int i = 0; i < sizeVertical; i++) {
@@ -104,16 +96,24 @@ public class RoomEditor : Room {
             outputFile.WriteLine(saveString);
         }
 
-        UpdateTags(fileName);
     }
 
-    public void UpdateTags(string fileName) {
+    void GetTags(string fileName) {
+        Dictionary<string, int[]> allTagData = ReadTags();
+        int[] _tagData = null;
+        if (allTagData.ContainsKey(fileName)) {
+            _tagData = allTagData[fileName];
+        }
+        SetTags(_tagData);
+    }
+
+    void WriteTags(string fileName) {
 
         Dictionary<string, int[]> allTagData = ReadTags();
 
         // this rooms tag data to the correct format
         int[] _tagData = new int[(int)MapChannel.channelCount];
-        foreach (KeyValuePair<MapChannel, int> tagIndex in tagData) {
+        foreach (KeyValuePair<MapChannel, int> tagIndex in tagDict) {
             _tagData[(int)tagIndex.Key] = tagIndex.Value;
         }
 
@@ -143,29 +143,31 @@ public class RoomEditor : Room {
     }
 
     /* --- INITIALIZERS --- */
+
     // initialize an empty dictionary of tags
-    void SetTags(int[] tagIndices) {
-        if (tagIndices == null) { tagIndices = new int[1]; }
-        tagData = new Dictionary<MapChannel, int>();
+    void SetTags(int[] tagArray) {
+        if (tagArray == null) { tagArray = new int[1]; }
+
+        tagDict = new Dictionary<MapChannel, int>();
         for (int n = 0; n < (int)MapChannel.channelCount; n++) {
-            if (n < tagIndices.Length) {
-                tagData[(MapChannel)n] = tagIndices[n];
+            if (n < tagArray.Length) {
+                tagDict[(MapChannel)n] = tagArray[n];
             }
             else {
-                tagData[(MapChannel)n] = 0;
+                tagDict[(MapChannel)n] = 0;
             }
         }
 
-        tools.shapeTag.sprite = tools.shapeTags[tagData[MapChannel.SHAPE]];
-        tools.pathTag.sprite = tools.pathTags[tagData[MapChannel.PATH]];
-        tools.challengeTag.sprite = tools.challengeTags[tagData[MapChannel.CHALLENGE]];
+        tools.shapeTag.sprite = tools.shapeTags[tagDict[MapChannel.SHAPE]];
+        tools.pathTag.sprite = tools.pathTags[tagDict[MapChannel.PATH]];
+        tools.challengeTag.sprite = tools.challengeTags[tagDict[MapChannel.CHALLENGE]];
 
     }
 
     // set the tag for that channel using the dropdown buttons
     public void SetTag(int tagIndex) {
-        // hard set to challenges for the moment
-        tagData[MapChannel.CHALLENGE] = tagIndex;
+        // hard set to challenges channel for the moment
+        tagDict[MapChannel.CHALLENGE] = tagIndex;
         tools.challengeTag.sprite = tools.challengeTags[tagIndex];
         tools.SetTools((Challenge)tagIndex);
     }
@@ -216,7 +218,7 @@ public class RoomEditor : Room {
     }
 
     /* --- DISPLAY --- */
-    public override void PrintRoom() {
+    public void PrintRoom() {
         PrintChannel(Channel.GROUND);
         PrintChannel(Channel.INTERIOR);
         PrintChannel(Channel.WALL);

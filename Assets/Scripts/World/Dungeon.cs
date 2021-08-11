@@ -13,6 +13,7 @@ public class Dungeon : MonoBehaviour
     /* --- COMPONENTS --- */
     public Map map;
     public Room room;
+    public Tools tools;
 
     // temp
     Dictionary<string, int[]> roomsTagData;
@@ -34,15 +35,15 @@ public class Dungeon : MonoBehaviour
 
     void Start() {
         seed = GameRules.Hash(seed);
-        roomsTagData = room.ReadTags();
         map.Read(mapFile);
+        roomsTagData = room.ReadTags();
         LoadRoom(roomID);
     }
 
     /* --- FILES --- */
     public void LoadRoom(int[] id) {
         var roomData = GetRoom(id);
-        SetRoom(roomData.Item1, roomData.Item2, roomData.Item3, roomData.Item4, roomData.Item5);
+        SetRoom(id, roomData.Item1, roomData.Item2, roomData.Item3, roomData.Item4, roomData.Item5);
         roomID = id;
         map.minimap.PrintMinimap(map);
         map.minimap.PrintMiniplayer(roomID);
@@ -71,11 +72,10 @@ public class Dungeon : MonoBehaviour
         return (roomFile, shape, exits, roomTags, roomHash);
     }
 
-    void SetRoom(string roomFile, Shape shape, Directions exits, int[] roomTags, int roomHash) {
-        room.Read(roomFile);
-        room.SetExits(exits);
-        room.SetGround(roomHash);
-        room.CreateChallenges((Challenge)roomTags[(int)MapChannel.CHALLENGE]);
+    void SetRoom(int[] id, string roomFile, Shape shape, Directions exits, int[] roomTags, int roomHash) {
+        room.id = id; 
+        room.Open(roomFile);
+        room.ConstructRoom(roomHash, exits, (Challenge)roomTags[(int)MapChannel.CHALLENGE], tools);
 
         for (int i = exitList.Count-1; i >= 0; i--) {
             exitList[i].gameObject.SetActive(false);

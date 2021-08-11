@@ -18,6 +18,7 @@ public class IO : Widget {
     }
 
     public override void Activate() {
+        Log.ReadFile(fileName);
         OnIO.Invoke(fileName);
     }
 }

@@ -19,10 +19,7 @@ public class Controller : MonoBehaviour
     public Vector2 movementVector = Vector2.zero;
     public float rotationSpeed = 0f;
 
-    /* --- UNITY --- */
-    void Start() { 
-    }
-    
+    /* --- UNITY --- */  
     void Update() {
         GetInput();
     }
@@ -59,6 +56,10 @@ public class Controller : MonoBehaviour
     }
     
     public virtual void Hit(Hitbox hit) {
+        //
+    }
+
+    public virtual void See(Hitbox hit) {
         //
     }
 
