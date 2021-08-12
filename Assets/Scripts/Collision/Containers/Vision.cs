@@ -4,20 +4,61 @@ using UnityEngine;
 
 using Priority = Log.Priority;
 
-// requirements
-[RequireComponent(typeof(CircleCollider2D))]
-public class Vision : Hitbox {
+public class Vision : MonoBehaviour {
+    /* --- DEBUG --- */
+    protected Priority debugPrio = Priority.COLLISION;
+    protected string debugTag = "[VISION]: ";
+
+    /* --- COMPONENTS ---*/
+    public State state;
+
+    /* --- VARIABLES --- */
+    public List<State> container = new List<State>();
 
     /* --- UNITY --- */
-    public override void OnAdd(Hitbox hitbox) {
-        Log.Write(hitbox.state.name + " has vision of " + state.name, debugPrio, debugTag);
+    void OnTriggerEnter2D(Collider2D collider) {
+        Add(collider);
+    }
 
-        // get the state
-        state.controller.See(hitbox);
+    void OnTriggerExit2D(Collider2D collider) {
+        Remove(collider);
+    }
+
+    /* --- METHODS --- */
+    void Add(Collider2D collider) {
+
+        // add the item if it is in the container and has the correct tag
+        if (collider.tag == "Hitbox" && collider.GetComponent<Hitbox>()?.state != null && !container.Contains(collider.GetComponent<Hitbox>().state)) {
+            State hitboxState = collider.GetComponent<Hitbox>().state;
+            container.Add(hitboxState);
+            OnAdd(hitboxState);
+        }
 
     }
 
-    public override void OnRemove(Hitbox hitbox) {
-        Log.Write(hitbox.state.name + " no longer has vision of " + state.name, debugPrio, debugTag);
+    void Remove(Collider2D collider) {
+
+        // remove an item if it is no longer in the container
+        if (collider.tag == "Hitbox" && collider.GetComponent<Hitbox>()?.state != null && container.Contains(collider.GetComponent<Hitbox>().state)) {
+            State hitboxState = collider.GetComponent<Hitbox>().state;
+            container.Remove(hitboxState);
+            OnRemove(hitboxState);
+        }
+
+    }
+
+    /* --- VIRTUAL --- */
+    public void OnAdd(State hitboxState) {
+        Log.Write(hitboxState.name + " has vision of " + state.name, debugPrio, debugTag);
+
+        // get the state
+        // state.controller.See(hitbox.state, true);
+    }
+
+    public void OnRemove(State hitboxState) {
+        Log.Write(hitboxState.name + " no longer has vision of " + state.name, debugPrio, debugTag);
+
+        // get the state
+        // state.controller.See(hitbox.state, false);
     }
 }

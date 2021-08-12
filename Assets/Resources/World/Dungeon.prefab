@@ -51,7 +51,8 @@ MonoBehaviour:
   pathTags: []
   challengeTag: {fileID: 0}
   challengeTags: []
-  mobs: []
+  mobs:
+  - {fileID: 3480448061164151121, guid: e7d97f0178a8d9b40b96dec692669441, type: 3}
   traps:
   - {fileID: 6707255280579288543, guid: 687e0f2aa41805f43b96d7dc7a7ab1dc, type: 3}
   - {fileID: 629466601208294956, guid: fdf68c7aa34934c4cb1a70bb03ced69a, type: 3}
@@ -191,7 +192,7 @@ GameObject:
   - component: {fileID: 6083610722540539313}
   m_Layer: 0
   m_Name: Exit
-  m_TagString: Untagged
+  m_TagString: Hitbox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -289,9 +290,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1af09b8f1de288c48817a74da9942e91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doDebug: 1
+  state: {fileID: 0}
   container: []
-  stickyContainer: 0
   dungeon: {fileID: 7497367834391583589}
   exitID: 0000000000000000
 --- !u!1 &6083610723255603887

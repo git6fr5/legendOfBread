@@ -16,9 +16,18 @@ public class Player : Controller {
 
 
     /* --- OVERRIDE --- */
-    public override void GetInput() {
-        // move 
+    public override void Think() {
+        // reset movement 
         movementVector = Vector2.zero;
+
+        // actions
+        GetInput();
+        FaceDirection();
+
+    }
+
+    /* --- METHODS --- */
+    void GetInput() {
 
         // get the last pressed key
         foreach (KeyValuePair<KeyCode, Vector2> movement in movementKeys) {
@@ -30,7 +39,6 @@ public class Player : Controller {
         // prioritize the last pressed key
         if (Input.GetKey(lastPressedKey)) {
             movementVector = movementKeys[lastPressedKey];
-            FaceDirection();
             return;
         }
 
@@ -38,7 +46,6 @@ public class Player : Controller {
         foreach (KeyValuePair<KeyCode, Vector2> movement in movementKeys) {
             if (Input.GetKey(movement.Key)) {
                 movementVector = movement.Value;
-                FaceDirection();
                 return;
             }
         }

@@ -70,7 +70,7 @@ public class Animation2D : MonoBehaviour
         frame = frames[frameIndex];
     }
 
-    protected void SnapToFrame(int _frameIndex) {
+    public void SnapToFrame(int _frameIndex) {
         frameIndex = _frameIndex;
         frame = frames[frameIndex];
     }

@@ -2348,7 +2348,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 61b832bec376b0f40830c4304495218d, type: 3}
   - {fileID: 7199347873815094864, guid: c1d176ed17b6ee648ad173665965dad1, type: 3}
   - {fileID: 3347507749235606559, guid: c1d176ed17b6ee648ad173665965dad1, type: 3}
-  mobs: []
+  mobs:
+  - {fileID: 3480448061164151121, guid: e7d97f0178a8d9b40b96dec692669441, type: 3}
   traps:
   - {fileID: 6707255280579288543, guid: 687e0f2aa41805f43b96d7dc7a7ab1dc, type: 3}
   - {fileID: 629466601208294956, guid: fdf68c7aa34934c4cb1a70bb03ced69a, type: 3}

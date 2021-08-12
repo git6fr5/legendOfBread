@@ -21,7 +21,7 @@ public class Controller : MonoBehaviour
 
     /* --- UNITY --- */  
     void Update() {
-        GetInput();
+        Think();
     }
 
     void FixedUpdate() {
@@ -30,7 +30,7 @@ public class Controller : MonoBehaviour
     }
     
     /* --- VIRTUAL --- */
-    public virtual void GetInput() {      
+    public virtual void Think() {      
         // get the input
     }
 
@@ -59,7 +59,7 @@ public class Controller : MonoBehaviour
         //
     }
 
-    public virtual void See(Hitbox hit) {
+    public virtual void See(State state, bool enteringVision) {
         //
     }
 

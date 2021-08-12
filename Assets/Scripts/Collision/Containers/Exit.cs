@@ -2,17 +2,46 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Exit : Hitbox {
+using Priority = Log.Priority;
+
+public class Exit : MonoBehaviour {
+
+    /* --- DEBUG --- */
+    protected Priority debugPrio = Priority.COLLISION;
+    protected string debugTag = "[EXIT]: ";
+
+    /* --- COMPONENTS --- */
 
     // the dungeon
     public Dungeon dungeon;
+
+    /* --- VARIABLES --- */
+    
+    // id
     [HideInInspector] public int[] exitID = new int[] { 0, 0 };
 
     // the player tag
     string playerTag = "Player";
 
-    /* --- OVERRIDE --- */
-    public override void OnAdd(Hitbox hitbox) {
+    /* --- UNITY --- */
+    void OnTriggerEnter2D(Collider2D collider) {
+        Add(collider);
+    }
+
+    /* --- METHODS --- */
+    void Add(Collider2D collider) {
+
+        // add the item if it is in the container and has the correct tag
+        if (collider.tag == tag && collider.GetComponent<Hitbox>() != null) {
+            Hitbox hitbox = collider.GetComponent<Hitbox>();
+            if (hitbox.state.tag == playerTag) {
+                OnExit(hitbox);
+            }
+        }
+
+    }
+
+    public void OnExit(Hitbox hitbox) {
         Log.Write(hitbox.state.name + " has triggered the exit to " + Log.ID(exitID), debugPrio, debugTag);
 
         // get the state
@@ -30,4 +59,5 @@ public class Exit : Hitbox {
         }        
 
     }
+
 }

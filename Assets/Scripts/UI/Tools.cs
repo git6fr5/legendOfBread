@@ -37,6 +37,13 @@ public class Tools : MonoBehaviour
         if (challenge == Challenge.COMBAT) {
             print("Mob");
             brushes = new Select[mobs.Length];
+            for (int i = 0; i < mobs.Length; i++) {
+                Vector3 position = emptyBrush.transform.position + new Vector3(i % 3, Mathf.Floor(i / 3), 0);
+                Select newBrush = Instantiate(emptyBrush.gameObject, position, Quaternion.identity, transform).GetComponent<Select>();
+                newBrush.GetComponent<SpriteRenderer>().sprite = mobs[i].state._renderer.defaultSprite;
+                newBrush.index = mobs[i].id;
+                brushes[i] = newBrush;
+            }
         }
 
         else if (challenge == Challenge.TRAP) {
@@ -58,12 +65,12 @@ public class Tools : MonoBehaviour
     public GameObject[] GetChallengeObjects(Challenge challenge) {
 
         GameObject[] objects = new GameObject[0];
-        //if (challenge == Challenge.COMBAT) {
-        //    objects = new GameObject[99];
-        //    for (int i = 0; i < objects.Length; i++) {
-        //        objects[i] = mobs[i].gameObject;
-        //    }
-        //}
+        if (challenge == Challenge.COMBAT) {
+            objects = new GameObject[99];
+            for (int i = 0; i < mobs.Length; i++) {
+                objects[mobs[i].id] = mobs[i].gameObject;
+            }
+        }
         if (challenge == Challenge.TRAP) {
             objects = new GameObject[99];
             for (int i = 0; i < traps.Length; i++) {

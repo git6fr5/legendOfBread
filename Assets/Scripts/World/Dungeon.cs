@@ -73,15 +73,17 @@ public class Dungeon : MonoBehaviour
     }
 
     void SetRoom(int[] id, string roomFile, Shape shape, Directions exits, int[] roomTags, int roomHash) {
-        room.id = id; 
-        room.Open(roomFile);
-        room.ConstructRoom(roomHash, exits, (Challenge)roomTags[(int)MapChannel.CHALLENGE], tools);
 
-        for (int i = exitList.Count-1; i >= 0; i--) {
+        for (int i = exitList.Count - 1; i >= 0; i--) {
             exitList[i].gameObject.SetActive(false);
             Destroy(exitList[i].gameObject);
         }
         exitList = new List<Exit>();
+
+        room.id = id; 
+        room.Open(roomFile);
+        room.ConstructRoom(roomHash, exits, (Challenge)roomTags[(int)MapChannel.CHALLENGE], tools);
+
         for (int i = 0; i < room.exitLocations.Count; i++) {
             Vector3Int location = room.exitLocations[i];
            

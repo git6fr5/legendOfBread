@@ -4,12 +4,11 @@ using UnityEngine;
 
 using Priority = Log.Priority;
 
-[RequireComponent(typeof(BoxCollider2D))]
 public class Hitbox : MonoBehaviour
 {
     /* --- DEBUG --- */
     protected Priority debugPrio = Priority.COLLISION;
-    protected string debugTag = "[COLLISION]: ";
+    protected string debugTag = "[HITBOX]: ";
 
     /* --- COMPONENTS ---*/
     public State state;
@@ -33,6 +32,7 @@ public class Hitbox : MonoBehaviour
         if (collider.tag == tag && collider.GetComponent<Hitbox>() != null && !container.Contains(collider.GetComponent<Hitbox>())) {
             Hitbox hitbox = collider.GetComponent<Hitbox>();
             container.Add(hitbox);
+            OnAdd(hitbox);
         }
 
     }
@@ -43,6 +43,7 @@ public class Hitbox : MonoBehaviour
         if (collider.tag == tag && collider.GetComponent<Hitbox>() != null && container.Contains(collider.GetComponent<Hitbox>())) {
             Hitbox hitbox = collider.GetComponent<Hitbox>();
             container.Remove(hitbox);
+            OnRemove(hitbox);
         }
 
     }

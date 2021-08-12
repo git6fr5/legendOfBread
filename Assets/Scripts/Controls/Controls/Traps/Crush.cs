@@ -13,92 +13,60 @@ public class Crush : Trap {
     float idleTicks = 0f;
     float idleInterval = 1f;
 
-    float activeTicks = 0f;
-    float activeMaxInterval = 1f;
+    float activeBuffer = 0f; 
+    float resetBuffer = 0f;
+    float maxIntervalBuffer = 3f;
 
-    float followSpeedMultiplier = 2f;
-    float followDistance = 3f;
+    float activeSpeedMultiplier = 2f;
+    float travelDistance = 3f;
 
-    Direction targetDirection = Direction.EMPTY;
-
-    public override void OnThink() {
-
-        movementVector = Vector2.zero;
-
-        // resting state
-        if (followState == FollowState.IDLE ) {
-            GetTargetDirection();
-            idleTicks += Time.deltaTime;
-            if (idleTicks >= idleInterval) {
-                idleTicks = 0f;
-                _Activate();
-            }
+    /* --- OVERRIDE --- */
+    public override void IdleAction() {
+        idleTicks += Time.deltaTime;
+        if (idleTicks >= idleInterval) {
+            actionState = ActionState.EXCITED;
+            idleTicks = 0f;
         }
-        // following state
-        else if (followState == FollowState.ACTIVE) {
-            activeTicks += Time.deltaTime;
-            if (targetDirection != Direction.EMPTY && Vector2.Distance(transform.position, origin) < followDistance && activeTicks < activeMaxInterval) {
-                Charge();
-            }
-            else {
-                activeTicks = 0f;
-                Deactivate();
-            }
-        }
-        // returning state
-        else if (followState == FollowState.DEACTIVE) {
-            if ((Vector2.Distance(transform.position, origin) > 0.01f)) {
-                Withdraw();
-            }
-            else {
-                transform.position = origin;
-                idleTicks = 0f;
-                followState = FollowState.IDLE;
-            }
-        }
-        
     }
 
-    void GetTargetDirection() {
-        //targetDirection = Direction.EMPTY;
-        //for (int i = 0; i < vision.visionContainer.Count; i++) {
-        //    if (vision.visionContainer[i].state.tag == "Player") {
-        //        Hitbox target = vision.visionContainer[i];
-        //        targetDirection = Compass.VectorToCardinalDirection(transform.position - target.transform.position);
-        //    }
-        //}
+    public override void ExcitedAction() {
+        //
+        actionState = ActionState.ACTIVE;
+        Charge();
     }
 
-    void Charge() {
-        movementVector = Compass.DirectionToVector(targetDirection);
-    }
-
-    void Withdraw() {
-        state.direction = Compass.VectorToCardinalDirection(transform.position - origin);
+    public override void ActiveAction() {
+        //
         movementVector = Compass.DirectionToVector(state.direction);
+        activeBuffer += Time.deltaTime;
+
+        if (Vector2.Distance(transform.position, origin) >= travelDistance || activeBuffer >= maxIntervalBuffer) {
+            actionState = ActionState.RESET;
+            activeBuffer = 0f;
+            Withdraw();
+        }
     }
 
-    //public override void Activate() {
-    //    state._renderer.PlayAnimation(state._renderer.currAnimation);
-    //}
+    public override void ResetAction() {
 
-    public void _Activate() {
+        movementVector = origin - transform.position;
+        resetBuffer += Time.deltaTime;
+
+        if (Vector2.Distance(transform.position, origin) < 0.01f || resetBuffer >= maxIntervalBuffer) {
+            transform.position = origin;
+            actionState = ActionState.IDLE;
+            resetBuffer = 0f;
+        }
+    }
+
+    /* --- METHODS --- */
+    public void Charge() {
         state._renderer.PlayAnimation(state._renderer.currAnimation);
-        state.moveSpeed *= followSpeedMultiplier;
-        followState = FollowState.ACTIVE;
+        state.moveSpeed *= activeSpeedMultiplier;
     }
 
-    public void Deactivate() {
-        state.moveSpeed = state.moveSpeed / followSpeedMultiplier;
-        followState = FollowState.DEACTIVE;
+    public void Withdraw() {
+        state.moveSpeed = state.moveSpeed / activeSpeedMultiplier;
     }
-
-    //void ChangeDirection() {
-    //    int currDirectionIndex = Compass.ConvertCardinalToIndex(state.direction);
-    //    int newDirectionIndex = (currDirectionIndex + 2) % 4;
-    //    int newDirection = (int)Mathf.Pow(2, newDirectionIndex);
-    //    state.direction = (Direction)newDirection;
-    //}
-
 
 }
