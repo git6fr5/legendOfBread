@@ -6,6 +6,8 @@ using Direction = Compass.Direction;
 
 public class Player : Controller {
     /* --- VARIABLES --- */
+    public KeyCode attackKey = KeyCode.J;
+
     public Dictionary<KeyCode, Vector2> movementKeys = new Dictionary<KeyCode, Vector2>() {
         { KeyCode.W, Vector2.up },
         { KeyCode.A, -Vector2.right },
@@ -28,6 +30,14 @@ public class Player : Controller {
 
     /* --- METHODS --- */
     void GetInput() {
+
+        if (Input.GetKeyDown(attackKey)) {
+            attack = true;
+            return;
+        }
+        else if (state.isAttacking) {
+            return;
+        }
 
         // get the last pressed key
         foreach (KeyValuePair<KeyCode, Vector2> movement in movementKeys) {

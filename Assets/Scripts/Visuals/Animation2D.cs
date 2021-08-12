@@ -17,7 +17,7 @@ public class Animation2D : MonoBehaviour
     public Sprite frame;
     // for derived classes
     public int startIndex = 0; // for derived classes
-    protected int frameCount; // for derived classes
+    [HideInInspector] public int frameCount; // for derived classes
 
     /* --- UNITY --- */
     void Start() {

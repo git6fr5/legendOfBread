@@ -6,6 +6,10 @@ public class Slime : Mob {
 
     Vector2 targetPoint;
 
+    public int attackDamage = 1;
+    public float force = 1f;
+    public float knockDuration = 0.15f;
+
     public Slime() {
         id = 1;
     }
@@ -39,6 +43,16 @@ public class Slime : Mob {
     }
 
     public override void DeathAction() {
+
+    }
+
+    public override void Hit(Hitbox hitbox) {
+        // do damage?
+        if (hitbox.state.tag == playerTag) {
+            hitbox.state.Hurt(attackDamage);
+            Vector3 direction = hitbox.state.transform.position - transform.position;
+            hitbox.state.Knock(force, direction, knockDuration);
+        }
 
     }
 

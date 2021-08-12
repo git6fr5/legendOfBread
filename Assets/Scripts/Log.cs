@@ -17,7 +17,7 @@ public class Log : MonoBehaviour
         SOLO
     }
 
-    public static Priority filter = Priority.COLLISION;
+    public static Priority filter = Priority.SOLO;
 
     public static Dictionary<Priority, string> PriorityColors = new Dictionary<Priority, string>() {
         {Priority.LOW, "#DD9900" },

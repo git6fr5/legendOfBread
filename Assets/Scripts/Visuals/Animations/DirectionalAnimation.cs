@@ -4,12 +4,14 @@ using UnityEngine;
 
 using Directions = Compass.Direction;
 
-public class MoveAnimation : Animation2D
+public class DirectionalAnimation : Animation2D
 {
+
+    public int _frameCount = 4;
 
     /* --- OVERRIDE --- */
     public override void SetLength() {
-        frameCount = 4;
+        frameCount = _frameCount;
         frame = frames[startIndex];
     }
 

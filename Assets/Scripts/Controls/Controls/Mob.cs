@@ -77,19 +77,6 @@ public class Mob : Controller {
         //
     }
 
-    public override void See(State state, bool enteringVision) {
-        //if (enteringVision && state.tag == playerTag) {
-        //    actionState = ActionState.EXCITED;
-        //}
-        //else if (!enteringVision && state.tag == playerTag) {
-        //    actionState = ActionState.IDLE;
-        //}
-    }
-
-    public override void Hit(Hitbox hit) {
-        // do damage?
-    }
-
     void FaceDirection() {
         if (movementVector.x >= 0) {
             state.direction = Direction.RIGHT;

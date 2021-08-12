@@ -23,6 +23,7 @@ public class Dungeon : MonoBehaviour
 
 
     public List<Exit> exitList = new List<Exit>();
+    public Dictionary<string, GameObject[]> objectsLoaded = new Dictionary<string, GameObject[]>();
 
     /* --- VARIABLES --- */
     public int seed;
@@ -82,7 +83,32 @@ public class Dungeon : MonoBehaviour
 
         room.id = id; 
         room.Open(roomFile);
-        room.ConstructRoom(roomHash, exits, (Challenge)roomTags[(int)MapChannel.CHALLENGE], tools);
+        room.ConstructRoom(roomHash, exits);
+
+        room.DeloadChallenges();
+
+        // load objects (check for pre-existing objects)
+        Challenge roomChallenge = (Challenge)roomTags[(int)MapChannel.CHALLENGE];
+
+        print(Log.ID(id));
+        if (objectsLoaded.ContainsKey(Log.ID(id))) {
+            print("contained key");
+            List<GameObject> _challengeObjectList = new List<GameObject>();
+            for (int i = 0; i < objectsLoaded[Log.ID(id)].Length; i++) {
+                if (objectsLoaded[Log.ID(id)][i] != null) {
+                    if (!objectsLoaded[Log.ID(id)][i].GetComponent<State>().isDead) {
+                        objectsLoaded[Log.ID(id)][i].SetActive(true);
+                        _challengeObjectList.Add(objectsLoaded[Log.ID(id)][i]);
+                    }
+                }
+            }
+            room.challengeObjectList = _challengeObjectList;
+
+        }
+        else {
+            GameObject[] newObjects = room.CreateChallenges(roomChallenge, tools);
+            objectsLoaded.Add(Log.ID(id), newObjects);
+        }
 
         for (int i = 0; i < room.exitLocations.Count; i++) {
             Vector3Int location = room.exitLocations[i];

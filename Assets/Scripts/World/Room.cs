@@ -77,7 +77,7 @@ public class Room : MonoBehaviour {
     [HideInInspector] public List<float> exitRotations = new List<float>();
 
     // challenge data
-    List<GameObject> challengeObjectList = new List<GameObject>();
+    [HideInInspector] public List<GameObject> challengeObjectList = new List<GameObject>();
 
     /* --- VARIABLES --- */
 
@@ -219,13 +219,12 @@ public class Room : MonoBehaviour {
     /* --- CONSTRUCTION --- */
 
     // creates the room based on the challenge and the room data
-    public void ConstructRoom(int seed, Directions exits, Challenge challenge, Tools challengeTools) {
+    public void ConstructRoom(int seed, Directions exits) {
         Log.Write("Constructing Room with ID: " + Log.ID(id), debugPrio, debugTag);
 
         // edit the data based on this info
         SetGround(seed);
         SetExits(exits);
-        CreateChallenges(challenge, challengeTools);
 
         // print the tiles
         PrintChannel(Channel.GROUND);
@@ -304,20 +303,25 @@ public class Room : MonoBehaviour {
         roomChannels[(int)channel][point[0]][point[1]] = (int)Tiles.EMPTY;
     }
 
-    // create the challenges here
-    public void CreateChallenges(Challenge challenge, Tools challengeTools) {
-        Log.Write("Creating Challenges for Room with ID " + Log.ID(id), debugSubPrio, debugTag);
-
+    public void DeloadChallenges() {
         // purge the previous challenges
         // maybe abstract this to a "unload function"
         for (int i = challengeObjectList.Count - 1; i >= 0; i--) {
-            Destroy(challengeObjectList[i]);
-            challengeObjectList[i] = null;
+            // Destroy(challengeObjectList[i]);
+            // challengeObjectList[i] = null;
+            challengeObjectList[i].SetActive(false);
         }
         challengeObjectList = new List<GameObject>();
+    }
+
+    // create the challenges here
+    public GameObject[] CreateChallenges(Challenge challenge, Tools challengeTools) {
+        Log.Write("Creating Challenges for Room with ID " + Log.ID(id), debugSubPrio, debugTag);
+
+        DeloadChallenges();
 
         // access the appropriate array for the challenges
-        GameObject[] challengeObjects = challengeTools.GetChallengeObjects(challenge);
+        GameObject[] challengeObjectReferences = challengeTools.GetChallengeObjects(challenge);
 
         // find out where challenges are and place them
         for (int i = 0; i < sizeVertical; i++) {
@@ -325,16 +329,18 @@ public class Room : MonoBehaviour {
                 
                 // instantiate the appropriate challenge type indexed at
                 int challengeIndex = roomChannels[(int)Channel.INTERIOR][i][j];
-                if (challengeIndex < challengeObjects.Length && challengeObjects[challengeIndex] != null) {
+                if (challengeIndex < challengeObjectReferences.Length && challengeObjectReferences[challengeIndex] != null) {
                     Vector3 position = (Vector3)GridToTileMap(i, j);
                     position = position + new Vector3(0.5f, 0.5f);
-                    GameObject challengeObject = Instantiate(challengeObjects[challengeIndex], position, Quaternion.identity, transform);
+                    GameObject challengeObject = Instantiate(challengeObjectReferences[challengeIndex], position, Quaternion.identity, transform);
                     challengeObject.SetActive(true);
                     challengeObjectList.Add(challengeObject);
                     // exitList.Add(_exit); I'll need to store this somewhere to be able to dispose of it eventually
                 }
             }
         }
+
+        return challengeObjectList.ToArray();
     }
 
     /* --- DISPLAY --- */

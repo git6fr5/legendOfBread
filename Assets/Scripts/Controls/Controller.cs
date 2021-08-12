@@ -18,6 +18,7 @@ public class Controller : MonoBehaviour
     // horizontal
     public Vector2 movementVector = Vector2.zero;
     public float rotationSpeed = 0f;
+    public bool attack = false;
 
     /* --- UNITY --- */  
     void Update() {
@@ -25,6 +26,7 @@ public class Controller : MonoBehaviour
     }
 
     void FixedUpdate() {
+        Attack();
         Move();
         Rotate();
     }
@@ -32,6 +34,13 @@ public class Controller : MonoBehaviour
     /* --- VIRTUAL --- */
     public virtual void Think() {      
         // get the input
+    }
+
+    void Attack() {
+        if (attack) {
+            state.isAttacking = true;
+            attack = false;
+        }
     }
 
     void Move() {
