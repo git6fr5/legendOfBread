@@ -19,7 +19,7 @@ public class State : MonoBehaviour {
     // collision
     [Space(5)][Header("Collision")]
     public Rigidbody2D body;
-    public Collider2D hitbox;
+    public Hitbox hitbox;
     //
     public Weapon weapon;
 
@@ -33,8 +33,11 @@ public class State : MonoBehaviour {
     public Direction direction = Direction.RIGHT;
     public bool isAttacking = false;
     public bool isMoving = false;
+    public bool isHurt = false;
     public bool isDead = false;
-    public float moveSpeed = 0.5f;
+    public float baseSpeed = 0.5f;
+    float hurtBuffer = 0.4f;
+    float deathBuffer = 0.6f;
 
     /* --- UNITY --- */
     void Start() {
@@ -46,11 +49,20 @@ public class State : MonoBehaviour {
 
     /* --- METHODS --- */
     public void Hurt(int damage) {
+        // if (!isHurt) {
         currHealth -= damage;
-        if (currHealth <= 0) {
+        if (currHealth <= 0 && !isDead) {
             isDead = true;
-            gameObject.SetActive(false);
+            body.isKinematic = true;
+            hitbox.gameObject.SetActive(false);
+            controller.enabled = false;
+            StartCoroutine(IEDead(deathBuffer));
         }
+        else {
+            isHurt = true;
+            StartCoroutine(IEHurt(hurtBuffer));
+        }
+        // }
     }
 
     public void Knock(float magnitude, Vector2 direction, float duration) {
@@ -69,5 +81,23 @@ public class State : MonoBehaviour {
 
         yield return null;
     }
+
+    private IEnumerator IEHurt(float delay) {
+        yield return new WaitForSeconds(delay);
+
+        isHurt = false;
+
+        yield return null;
+    }
+
+    private IEnumerator IEDead(float delay) {
+        yield return new WaitForSeconds(delay);
+
+        controller.enabled = true;
+        controller.Die();
+
+        yield return null;
+    }
+
 
 }

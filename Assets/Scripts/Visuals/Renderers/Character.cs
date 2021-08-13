@@ -13,7 +13,12 @@ public class Character : Renderer2D
     public DirectionalAnimation walkingAnimation;
     public DirectionalAnimation attackAnimation;
 
+    public Material hurtMaterial;
+    public Material deathMaterial;
+
     public override void Render(State state) {
+
+        // Animation
         if (state.isAttacking) {
             if (currAnimation == attackAnimation && !currAnimation.isPlaying) {
                 currAnimation = walkingAnimation;
@@ -37,6 +42,18 @@ public class Character : Renderer2D
             StopAnimation();
             SetDirectionIdle(state.direction);
         }
+
+        // Material
+        if (state.isDead) {
+            SetMaterial(deathMaterial);
+        }
+        else if (state.isHurt) {
+            SetMaterial(hurtMaterial);
+        }
+        else {
+            SetMaterial(null);
+        }
+
     }
 
     public void SetDirectionIdle(Direction direction) {

@@ -17,6 +17,7 @@ public class Renderer2D : MonoBehaviour
 
     /* --- UNITY --- */
     void Start() {
+        SetMaterial(null);
     }
 
     void Update() {

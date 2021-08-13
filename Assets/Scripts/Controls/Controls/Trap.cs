@@ -13,13 +13,9 @@ public class Trap : Controller {
 
     /* --- COMPONENTS --- */
     public string playerTag = "Player";
+    public Vision vision;
 
     /* --- VARIABLES --- */
-
-    // id
-    [Space(5)][Header("ID")]
-    public int id = 0;
-    
     // action state
     public ActionState actionState;
     
@@ -37,6 +33,7 @@ public class Trap : Controller {
 
         // reset the movement
         movementVector = Vector2.zero;
+        moveSpeed = state.baseSpeed;
 
         // take an action based on the state
         switch (actionState) {
@@ -72,10 +69,6 @@ public class Trap : Controller {
 
     public virtual void ResetAction() {
         //
-    }
-
-    public override void Hit(Hitbox hit) {
-        // do damage?
     }
 
 }

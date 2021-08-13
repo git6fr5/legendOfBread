@@ -10,34 +10,53 @@ public class Crush : Trap {
         id = 1;
     }
 
-    float idleTicks = 0f;
-    float idleInterval = 1f;
+    public int collisionDamage = 1;
+    public float force = 1f;
+    public float knockDuration = 0.125f;
+
+    public float activeSpeedMultiplier = 5f;
+    public float travelDistance = 3f;
+
+    float excitedTicks = 0f;
+    float excitedInterval = 0.35f;
 
     float activeBuffer = 0f; 
     float resetBuffer = 0f;
-    float maxIntervalBuffer = 3f;
+    float maxIntervalBuffer = 2f;
 
-    float activeSpeedMultiplier = 2f;
-    float travelDistance = 3f;
+    
 
     /* --- OVERRIDE --- */
     public override void IdleAction() {
-        idleTicks += Time.deltaTime;
-        if (idleTicks >= idleInterval) {
-            actionState = ActionState.EXCITED;
-            idleTicks = 0f;
+
+        for (int i = 0; i < vision.container.Count; i++) {
+            if (vision.container[i].tag == playerTag) {
+
+                state.direction = Compass.VectorToCardinalDirection(transform.position - vision.container[i].transform.position);
+                if (state.direction != Direction.EMPTY) {
+                    actionState = ActionState.EXCITED;
+                }
+
+                return;
+            }
         }
     }
 
     public override void ExcitedAction() {
-        //
-        actionState = ActionState.ACTIVE;
-        Charge();
+
+        excitedTicks += Time.deltaTime;
+        if (excitedTicks >= excitedInterval) {
+            actionState = ActionState.ACTIVE;
+            excitedTicks = 0f;
+            Charge();
+        }
+
     }
 
     public override void ActiveAction() {
         //
         movementVector = Compass.DirectionToVector(state.direction);
+        moveSpeed = state.baseSpeed * activeSpeedMultiplier;
         activeBuffer += Time.deltaTime;
 
         if (Vector2.Distance(transform.position, origin) >= travelDistance || activeBuffer >= maxIntervalBuffer) {
@@ -62,11 +81,36 @@ public class Crush : Trap {
     /* --- METHODS --- */
     public void Charge() {
         state._renderer.PlayAnimation(state._renderer.currAnimation);
-        state.moveSpeed *= activeSpeedMultiplier;
+        state.body.isKinematic = false;
+        state.hitbox.Reset();
     }
 
     public void Withdraw() {
-        state.moveSpeed = state.moveSpeed / activeSpeedMultiplier;
+        state.body.isKinematic = true;
+        state.hitbox.Reset();
+    }
+
+    public override void Hit(Hitbox hitbox) {
+        // do damage?
+        if (hitbox.state.tag == playerTag  && actionState == ActionState.ACTIVE) {
+            hitbox.state.Hurt(collisionDamage);
+            Vector3 direction = movementVector; // hitbox.state.transform.position - transform.position;
+            hitbox.state.Knock(force, direction, knockDuration);
+
+        }
+
+        StartCoroutine(IEWithdraw(0.05f));
+
+    }
+
+    private IEnumerator IEWithdraw(float delay) {
+        yield return new WaitForSeconds(delay);
+
+        actionState = ActionState.RESET;
+        activeBuffer = 0f;
+        Withdraw();
+
+        yield return null;
     }
 
 }

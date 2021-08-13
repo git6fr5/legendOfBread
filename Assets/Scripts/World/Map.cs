@@ -37,8 +37,8 @@ public class Map : MonoBehaviour {
 
     // files
     [Space(5)][Header("IO")]
-    protected static string path = "Maps/";
-    protected static string fileExtension = ".map";
+    protected static string path = "DataFiles/Maps/";
+    protected static string fileExtension = ".txt";
 
     // minimap
     [Space(5)][Header("Maps")]
@@ -71,13 +71,12 @@ public class Map : MonoBehaviour {
         Log.ReadFile(fileName);
 
         // read the data from the file
-        string dungeon = "";
-        using (StreamReader readFile = new StreamReader(GameRules.Path + path + fileName + fileExtension)) {
-            dungeon = readFile.ReadToEnd();
-        }
+        TextAsset mapAsset = Resources.Load(path + fileName) as TextAsset;
+        string map = mapAsset.text;
+
 
         // put the data into the appropriate format
-        string[] channels = dungeon.Split('\n');
+        string[] channels = map.Split('\n');
         mapChannels = new int[channels.Length - 1][][];
         for (int n = 0; n < channels.Length - 1; n++) {
             string[] rows = channels[n].Split('\t');

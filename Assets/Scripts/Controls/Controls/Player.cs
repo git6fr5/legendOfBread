@@ -5,6 +5,17 @@ using UnityEngine;
 using Direction = Compass.Direction;
 
 public class Player : Controller {
+
+    /* --- ENUMS --- */
+    public enum ActionState {
+        IDLE,
+        MOVING,
+        ATTACKING,
+        DEAD,
+    }
+
+    public ActionState actionState;
+
     /* --- VARIABLES --- */
     public KeyCode attackKey = KeyCode.J;
 
@@ -16,27 +27,34 @@ public class Player : Controller {
     };
     public KeyCode lastPressedKey = KeyCode.W;
 
+    [Range(0.05f, 1f)] public float attackMoveSlowMultiplier = 0.5f;
 
     /* --- OVERRIDE --- */
     public override void Think() {
         // reset movement 
         movementVector = Vector2.zero;
+        moveSpeed = state.baseSpeed;
 
         // actions
-        GetInput();
-        FaceDirection();
-
+        GetAttackInput();
+        GetMoveInput();
+        GetDirection();
     }
 
-    /* --- METHODS --- */
-    void GetInput() {
 
-        if (Input.GetKeyDown(attackKey)) {
+    /* --- METHODS --- */
+    void GetAttackInput() {
+        if (Input.GetKeyDown(attackKey) && !state.isAttacking) {
             attack = true;
             return;
         }
-        else if (state.isAttacking) {
-            return;
+    }
+
+    void GetMoveInput() {
+
+        // get the speed of the player
+        if (state.isAttacking) {
+            moveSpeed = state.baseSpeed * attackMoveSlowMultiplier;
         }
 
         // get the last pressed key
@@ -59,10 +77,11 @@ public class Player : Controller {
                 return;
             }
         }
-
     }
 
-    void FaceDirection() {
+    void GetDirection() {
+        if (state.isAttacking) { return; }
+
         if (movementVector.x == 1) {
             state.direction = Direction.RIGHT;
         }

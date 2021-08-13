@@ -18,11 +18,6 @@ public class Mob : Controller {
     public Vision vision;
 
     /* --- VARIABLES --- */
-    
-    // id
-    [Space(5)][Header("ID")]   
-    public int id = 0;
-
     // the action state
     public ActionState actionState;
 
@@ -39,6 +34,7 @@ public class Mob : Controller {
 
         // reset the movement
         movementVector = Vector2.zero;
+        moveSpeed = state.baseSpeed;
 
         // take an action based on the state
         switch (actionState) {

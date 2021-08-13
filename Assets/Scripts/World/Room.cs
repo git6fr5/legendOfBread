@@ -1,6 +1,8 @@
 ﻿// system modules
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 
 // unity modules
@@ -54,8 +56,8 @@ public class Room : MonoBehaviour {
     
     // files
     [Space(5)][Header("IO")]
-    protected static string path = "Rooms/";
-    protected static string fileExtension = ".room";
+    protected static string path = "DataFiles/Rooms/";
+    protected static string fileExtension = ".txt";
     public static string tagFile = "rooms.txt";
 
     // maps
@@ -75,9 +77,6 @@ public class Room : MonoBehaviour {
     [HideInInspector] public List<Vector3Int> exitLocations = new List<Vector3Int>();
     [HideInInspector] public List<int[]> exitID = new List<int[]>();
     [HideInInspector] public List<float> exitRotations = new List<float>();
-
-    // challenge data
-    [HideInInspector] public List<GameObject> challengeObjectList = new List<GameObject>();
 
     /* --- VARIABLES --- */
 
@@ -121,10 +120,8 @@ public class Room : MonoBehaviour {
         Log.ReadFile(fileName);
 
         // read the data from the file
-        string room = "";
-        using (StreamReader readFile = new StreamReader(GameRules.Path + path + fileName + fileExtension)) {
-            room = readFile.ReadToEnd();
-        }
+        TextAsset roomAsset = Resources.Load(path + fileName) as TextAsset;
+        string room = roomAsset.text;
 
         // put the data into the appropriate format
         string[] channels = room.Split('\n');
@@ -196,7 +193,7 @@ public class Room : MonoBehaviour {
     void SetChannels() {
 
         // organize the walls
-        wallLayout.Organize();
+        wallLayout.SetDirectionalOrder();
         
         // add the maps
         maps.Add(groundMap);
@@ -303,25 +300,13 @@ public class Room : MonoBehaviour {
         roomChannels[(int)channel][point[0]][point[1]] = (int)Tiles.EMPTY;
     }
 
-    public void DeloadChallenges() {
-        // purge the previous challenges
-        // maybe abstract this to a "unload function"
-        for (int i = challengeObjectList.Count - 1; i >= 0; i--) {
-            // Destroy(challengeObjectList[i]);
-            // challengeObjectList[i] = null;
-            challengeObjectList[i].SetActive(false);
-        }
-        challengeObjectList = new List<GameObject>();
-    }
-
     // create the challenges here
-    public GameObject[] CreateChallenges(Challenge challenge, Tools challengeTools) {
+    public GameObject[] LoadNewObjects(Challenge challenge, ToolSet toolSet) {
         Log.Write("Creating Challenges for Room with ID " + Log.ID(id), debugSubPrio, debugTag);
 
-        DeloadChallenges();
-
         // access the appropriate array for the challenges
-        GameObject[] challengeObjectReferences = challengeTools.GetChallengeObjects(challenge);
+        GameObject[] objectReferences = toolSet.GetObjects(challenge);
+        List<GameObject> objectList = new List<GameObject>();
 
         // find out where challenges are and place them
         for (int i = 0; i < sizeVertical; i++) {
@@ -329,18 +314,21 @@ public class Room : MonoBehaviour {
                 
                 // instantiate the appropriate challenge type indexed at
                 int challengeIndex = roomChannels[(int)Channel.INTERIOR][i][j];
-                if (challengeIndex < challengeObjectReferences.Length && challengeObjectReferences[challengeIndex] != null) {
+
+                // check that its a valid index
+                if (challengeIndex < objectReferences.Length && objectReferences[challengeIndex] != null) {
+
+                    // load the object
                     Vector3 position = (Vector3)GridToTileMap(i, j);
-                    position = position + new Vector3(0.5f, 0.5f);
-                    GameObject challengeObject = Instantiate(challengeObjectReferences[challengeIndex], position, Quaternion.identity, transform);
+                    GameObject challengeObject = Instantiate(objectReferences[challengeIndex], position + new Vector3(0.5f, 0.5f), Quaternion.identity, transform);
                     challengeObject.SetActive(true);
-                    challengeObjectList.Add(challengeObject);
-                    // exitList.Add(_exit); I'll need to store this somewhere to be able to dispose of it eventually
+                    objectList.Add(challengeObject);
+
                 }
             }
         }
 
-        return challengeObjectList.ToArray();
+        return objectList.ToArray();
     }
 
     /* --- DISPLAY --- */

@@ -50,7 +50,10 @@ public class Exit : MonoBehaviour {
 
             // move the player
             Vector3 currPosition = hitbox.state.transform.position;
-            Vector3 deltaPosition = new Vector3(-exitID[1] * 7.5f, exitID[0] * 7.5f, 0);
+
+            // slightly different values along the x and y axis because of the rectangular shape
+            // of the players hitbox
+            Vector3 deltaPosition = new Vector3(-exitID[1] * 8.05f, exitID[0] * 7.95f, 0);
             hitbox.state.transform.position = currPosition + deltaPosition;
 
             // load the new room

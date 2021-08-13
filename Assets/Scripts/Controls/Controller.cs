@@ -15,10 +15,15 @@ public class Controller : MonoBehaviour
     public State state;
 
     /* --- VARIABLES --- */
-    // horizontal
+    // id
+    [Space(5)][Header("ID")]
+    public int id = 0;
+    [Space(5)][Header("Controls")]
+    // controls
     public Vector2 movementVector = Vector2.zero;
     public float rotationSpeed = 0f;
     public bool attack = false;
+    protected float moveSpeed = 0f;
 
     /* --- UNITY --- */  
     void Update() {
@@ -46,7 +51,7 @@ public class Controller : MonoBehaviour
     void Move() {
         // Apply the movement
         if (movementVector != Vector2.zero) {
-            Vector2 deltaPosition = movementVector.normalized * GameRules.PixelsPerUnit * state.moveSpeed * Time.fixedDeltaTime;
+            Vector2 deltaPosition = movementVector.normalized * GameRules.PixelsPerUnit * moveSpeed * Time.fixedDeltaTime;
             state.transform.position = state.transform.position + (Vector3)deltaPosition;
             state.isMoving = true;
         }
@@ -70,6 +75,10 @@ public class Controller : MonoBehaviour
 
     public virtual void See(State state, bool enteringVision) {
         //
+    }
+
+    public virtual void Die() {
+        gameObject.SetActive(false);
     }
 
 }

@@ -19,7 +19,22 @@ public class Weapon : MonoBehaviour {
     public float force = 1f;
     public float knockDuration = 0.15f;
 
+    void Update() {
+        Swing();
+    }
 
+    public void Swing() {
+        print("swinging");
+
+        if (_renderer.currAnimation != null) {
+            int frameIndex = _renderer.currAnimation.frameIndex;
+            int frameCount = _renderer.currAnimation.frameCount;
+            transform.localRotation = Quaternion.Euler(0, 0, -(frameIndex * 180 / (frameCount - 1)));
+        }
+
+    }
+
+     
     /* --- UNITY --- */
     void OnTriggerEnter2D(Collider2D collider) {
         Attack(collider);
@@ -32,8 +47,10 @@ public class Weapon : MonoBehaviour {
             // add the item if it is in the container and has the correct tag
             if (collider.tag == "Hitbox" && collider.GetComponent<Hitbox>() != null && !container.Contains(collider.GetComponent<Hitbox>())) {
                 Hitbox hitbox = collider.GetComponent<Hitbox>();
-                container.Add(hitbox);
-                OnAttack(hitbox);
+                if (hitbox.state.GetComponent<Mob>() != null) {
+                    container.Add(hitbox);
+                    OnAttack(hitbox);
+                }
             }
 
         // }

@@ -11,8 +11,12 @@ public class MobRenderer : Renderer2D {
     [Space(5)]
     [Header("Animations")]
     public Animation2D movingAnimation;
+    public Material hurtMaterial;
+    public Material deathMaterial;
 
     public override void Render(State state) {
+
+        // Animation
         if (state.isMoving) {
             // if we're moving, get the direction and play the animation
             PlayAnimation(movingAnimation);
@@ -24,6 +28,18 @@ public class MobRenderer : Renderer2D {
         }
 
         SetDirection(state);
+
+
+        // Material
+        if (state.isDead) {
+            SetMaterial(deathMaterial);
+        }
+        else if (state.isHurt) {
+            SetMaterial(hurtMaterial);
+        }
+        else {
+            SetMaterial(null);
+        }
     }
 
     public void SetDirection(State state) {

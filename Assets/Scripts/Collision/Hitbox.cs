@@ -48,6 +48,10 @@ public class Hitbox : MonoBehaviour
 
     }
 
+    public void Reset() {
+        container = new List<Hitbox>();
+    }
+
     /* --- VIRTUAL --- */
 
     // on adding

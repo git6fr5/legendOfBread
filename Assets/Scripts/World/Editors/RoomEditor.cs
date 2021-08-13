@@ -24,7 +24,7 @@ public class RoomEditor : Room {
     // menu
     [Space(5)][Header("UI")]
     public RoomMenu menu;
-    public Tools tools;
+    public ToolBrush toolBrush;
 
     // temp
     public Shape defaultShape = Shape.SQUARE;
@@ -158,18 +158,22 @@ public class RoomEditor : Room {
             }
         }
 
-        tools.shapeTag.sprite = tools.shapeTags[tagDict[MapChannel.SHAPE]];
-        tools.pathTag.sprite = tools.pathTags[tagDict[MapChannel.PATH]];
-        tools.challengeTag.sprite = tools.challengeTags[tagDict[MapChannel.CHALLENGE]];
+        // temporarily
+        tagDict[MapChannel.SHAPE] = (int)Shape.SQUARE;
+        tagDict[MapChannel.PATH] = 1;
+
+        toolBrush.shapeTag.sprite = toolBrush.shapeTags[tagDict[MapChannel.SHAPE]];
+        toolBrush.pathTag.sprite = toolBrush.pathTags[tagDict[MapChannel.PATH]];
+        toolBrush.challengeTag.sprite = toolBrush.challengeTags[tagDict[MapChannel.CHALLENGE]];
 
     }
 
     // set the tag for that channel using the dropdown buttons
     public void SetTag(int tagIndex) {
-        // hard set to challenges channel for the moment
+        // hard set to the channel for challenges at the moment
         tagDict[MapChannel.CHALLENGE] = tagIndex;
-        tools.challengeTag.sprite = tools.challengeTags[tagIndex];
-        tools.SetTools((Challenge)tagIndex);
+        toolBrush.challengeTag.sprite = toolBrush.challengeTags[tagIndex];
+        toolBrush.SetPalette((Challenge)tagIndex);
     }
 
     // initialize a grid full of empty tiles
