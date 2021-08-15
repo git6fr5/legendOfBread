@@ -45,6 +45,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mobs:
   - {fileID: 3480448061164151121, guid: e7d97f0178a8d9b40b96dec692669441, type: 3}
+  - {fileID: 1776046076715974144, guid: 9f4e6c7c999b39a4a9f3368236b9ae2a, type: 3}
   traps:
   - {fileID: 6707255280579288543, guid: 687e0f2aa41805f43b96d7dc7a7ab1dc, type: 3}
   - {fileID: 629466601208294956, guid: fdf68c7aa34934c4cb1a70bb03ced69a, type: 3}
+  - {fileID: 1820845152901196407, guid: a022926ab3f4755429f3152ca8f797d5, type: 3}

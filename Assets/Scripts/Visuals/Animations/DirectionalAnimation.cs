@@ -10,6 +10,12 @@ public class DirectionalAnimation : Animation2D
     public int _frameCount = 4;
 
     /* --- OVERRIDE --- */
+    public override void Play() {
+        frameIndex = startIndex + 1;
+        timer = (0.5f / frameRate);
+        isPlaying = true;
+    }
+
     public override void SetLength() {
         frameCount = _frameCount;
         frame = frames[startIndex];

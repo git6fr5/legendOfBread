@@ -197,11 +197,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6639445945485790523, guid: c76fa551f110bb64da821bdf09592784, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.5909107
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6639445945485790523, guid: c76fa551f110bb64da821bdf09592784, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.89082927
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6639445945485790523, guid: c76fa551f110bb64da821bdf09592784, type: 3}
       propertyPath: m_LocalPosition.z
@@ -307,6 +307,22 @@ PrefabInstance:
     - target: {fileID: 7497367834391583587, guid: 728467d3bce3e2c429e44e466dc2e815, type: 3}
       propertyPath: m_Name
       value: Dungeon
+      objectReference: {fileID: 0}
+    - target: {fileID: 7497367834391583589, guid: 728467d3bce3e2c429e44e466dc2e815, type: 3}
+      propertyPath: mapFile
+      value: demo
+      objectReference: {fileID: 0}
+    - target: {fileID: 7497367834391583589, guid: 728467d3bce3e2c429e44e466dc2e815, type: 3}
+      propertyPath: roomID.Array.data[1]
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7497367834391583589, guid: 728467d3bce3e2c429e44e466dc2e815, type: 3}
+      propertyPath: roomID.Array.data[0]
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7497367834391583589, guid: 728467d3bce3e2c429e44e466dc2e815, type: 3}
+      propertyPath: seed
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 728467d3bce3e2c429e44e466dc2e815, type: 3}

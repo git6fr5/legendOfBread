@@ -373,14 +373,6 @@ public class RoomEditor : Room {
         return PointToGrid(mousePos);
     }
 
-    // a given point to grid coordinates 
-    public int[] PointToGrid(Vector2 point) {
-        int i = (int)(-point.y + vertOffset);
-        int j = (int)(point.x + horOffset);
-        //print(i + ", " + j);
-        return new int[] { i, j };
-    }
-
     // checks if a coordinate is in the grid
     public bool PointInGrid(int[] point) {
         bool isInGrid = (point[1] < sizeHorizontal && point[1] >= 0 && point[0] < sizeVertical && point[0] >= 0);

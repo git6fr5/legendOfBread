@@ -35,7 +35,7 @@ public class Animation2D : MonoBehaviour
     }
 
     /* --- METHODS --- */
-    public void Play() {
+    public virtual void Play() {
         frameIndex = startIndex;
         timer = 0f;
         isPlaying = true;

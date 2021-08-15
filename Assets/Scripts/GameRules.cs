@@ -12,6 +12,13 @@ public class GameRules : MonoBehaviour {
     public static int PixelsPerUnit = 16;
     public static string Path = "Assets/Resources/";
 
+    public static int gameTicks;
+
+    void Update() {
+        print("game tick");
+        gameTicks++;
+    }
+
     public static int HashID(int seed, int[] id) {
         int _1 = (int)Mathf.Pow(2, id[0]);
         int _2 = (int)Mathf.Pow(3, id[1]);

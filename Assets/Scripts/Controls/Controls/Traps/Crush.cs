@@ -71,7 +71,7 @@ public class Crush : Trap {
         movementVector = origin - transform.position;
         resetBuffer += Time.deltaTime;
 
-        if (Vector2.Distance(transform.position, origin) < 0.01f || resetBuffer >= maxIntervalBuffer) {
+        if (Vector2.Distance(transform.position, origin) < 0.05f || resetBuffer >= maxIntervalBuffer) {
             transform.position = origin;
             actionState = ActionState.IDLE;
             resetBuffer = 0f;

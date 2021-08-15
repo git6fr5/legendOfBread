@@ -357,6 +357,15 @@ public class Room : MonoBehaviour {
     }
 
     /* --- CONVERSION --- */
+
+    // a given point to grid coordinates 
+    public int[] PointToGrid(Vector2 point) {
+        int i = (int)(-point.y + vertOffset);
+        int j = (int)(point.x + horOffset);
+        //print(i + ", " + j);
+        return new int[] { i, j };
+    }
+
     // grid coordinate to tile map position
     public Vector3Int GridToTileMap(int i, int j) {
         return new Vector3Int(j - horOffset, -(i - vertOffset + 1), 0);

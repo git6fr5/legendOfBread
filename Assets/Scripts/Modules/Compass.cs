@@ -94,6 +94,13 @@ public class Compass : MonoBehaviour {
         return (int)Mathf.Log((int)direction, 2);
     }
 
+    public static Direction ConvertIndexToCardinal(int index) {
+        index = Mod(index, 4);
+        Direction dir = (Direction)((int)Mathf.Pow(2, index));
+        print(dir);
+        return dir;
+    }
+
     public static Vector2 DirectionToVector(Direction direction) {
         int directionIndex = (int)direction;
         float x = 0; float y = 0;
@@ -127,6 +134,10 @@ public class Compass : MonoBehaviour {
                 return Direction.UP;
             }
         }
+    }
+
+    static int Mod(int x, int m) {
+        return (x % m + m) % m;
     }
 
 }
