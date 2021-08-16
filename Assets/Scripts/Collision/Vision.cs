@@ -2,63 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using Priority = Log.Priority;
-
 public class Vision : MonoBehaviour {
-    /* --- DEBUG --- */
-    protected Priority debugPrio = Priority.COLLISION;
-    protected string debugTag = "[VISION]: ";
 
-    /* --- COMPONENTS ---*/
-    public State state;
+    /* --- Components ---*/
+    public List<Mesh> container = new List<Mesh>();
 
-    /* --- VARIABLES --- */
-    public List<State> container = new List<State>();
+    /* --- Unity --- */
 
-    /* --- UNITY --- */
+    // called when the attached collider intersects with another collider
     void OnTriggerEnter2D(Collider2D collider) {
-        Add(collider);
+        ScanVision(collider, true);
     }
 
+    // called when the attached collider intersects with another collider
     void OnTriggerExit2D(Collider2D collider) {
-        Remove(collider);
+        ScanVision(collider, false);
     }
 
-    /* --- METHODS --- */
-    void Add(Collider2D collider) {
-
-        // add the item if it is in the container and has the correct tag
-        if (collider.tag == "Hitbox" && collider.GetComponent<Hitbox>()?.state != null && !container.Contains(collider.GetComponent<Hitbox>().state)) {
-            State hitboxState = collider.GetComponent<Hitbox>().state;
-            container.Add(hitboxState);
-            OnAdd(hitboxState);
+    /* --- Methods --- */
+    void ScanVision(Collider2D collider, bool see) {
+        // If we weren't colliding with this object before, then hit.
+        if (collider.GetComponent<Mesh>() != null) {
+            Mesh mesh = collider.GetComponent<Mesh>();
+            if (!container.Contains(mesh) && see) {
+                container.Add(hitbox);
+            }
+            else if (container.Contains(mesh) && !see) {
+                container.Remove(mesh);
+            }
         }
-
     }
 
-    void Remove(Collider2D collider) {
-
-        // remove an item if it is no longer in the container
-        if (collider.tag == "Hitbox" && collider.GetComponent<Hitbox>()?.state != null && container.Contains(collider.GetComponent<Hitbox>().state)) {
-            State hitboxState = collider.GetComponent<Hitbox>().state;
-            container.Remove(hitboxState);
-            OnRemove(hitboxState);
-        }
-
+    public void Reset() {
+        container = new List<Hitbox>();
     }
 
-    /* --- VIRTUAL --- */
-    public void OnAdd(State hitboxState) {
-        Log.Write(hitboxState.name + " has vision of " + state.name, debugPrio, debugTag);
-
-        // get the state
-        // state.controller.See(hitbox.state, true);
-    }
-
-    public void OnRemove(State hitboxState) {
-        Log.Write(hitboxState.name + " no longer has vision of " + state.name, debugPrio, debugTag);
-
-        // get the state
-        // state.controller.See(hitbox.state, false);
-    }
 }
