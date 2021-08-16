@@ -71,9 +71,10 @@ public class Map : MonoBehaviour {
         Log.ReadFile(fileName);
 
         // read the data from the file
-        TextAsset mapAsset = Resources.Load(path + fileName) as TextAsset;
-        string map = mapAsset.text;
-
+        string map = "";
+        using (StreamReader readFile = new StreamReader(GameRules.Path + path + fileName + fileExtension)) {
+            map = readFile.ReadToEnd();
+        }
 
         // put the data into the appropriate format
         string[] channels = map.Split('\n');

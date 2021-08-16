@@ -9,11 +9,18 @@ public class WeaponRenderer : Renderer2D
     public Animation2D attackAnimation;
     public Weapon weapon;
 
+    public int attackIndex;
+
+
+
     public override void Render(State state) {
         if (state.isAttacking) {
             gameObject.SetActive(true);
-            attackAnimation.frameRate = state._renderer.currAnimation.frameRate;
-            PlayAnimation(attackAnimation);
+
+            attackIndex = state._renderer.currAnimation.frameIndex % state._renderer.currAnimation.frameCount;
+            print(attackAnimation.frameIndex);
+            spriteRenderer.sprite = attackAnimation.frames[attackIndex];
+
             SetRotation(state);
         }
         else {

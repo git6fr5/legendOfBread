@@ -328,14 +328,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _renderer: {fileID: 4808932508438896219}
   controller: {fileID: 4808932508927543565}
+  inventory: {fileID: 0}
   body: {fileID: 4808932508927543564}
   hitbox: {fileID: 4808932509195514758}
+  shadow: {fileID: 0}
   weapon: {fileID: 0}
   maxHealth: 1
   currHealth: 1
   direction: 1
   isAttacking: 0
   isMoving: 0
+  isBurning: 0
   isHurt: 0
   isDead: 0
   baseSpeed: 0.1
@@ -359,16 +362,17 @@ MonoBehaviour:
   attack: 0
   playerTag: Player
   vision: {fileID: 4808932507815447036}
+  item: {fileID: 0}
   actionState: 2
   origin: {x: 0, y: 0, z: 0}
   attackDamage: 0
   force: 0.5
   knockDuration: 0.075
+  parentSlime: {fileID: 3480448061164151121, guid: e7d97f0178a8d9b40b96dec692669441, type: 3}
+  childSlime: {fileID: 4808932508927543565}
   isBig: 0
   growTime: 10
   growTicks: 0
-  parentSlime: {fileID: 3480448061164151121, guid: e7d97f0178a8d9b40b96dec692669441, type: 3}
-  childSlime: {fileID: 4808932508927543565}
 --- !u!50 &4808932508927543564
 Rigidbody2D:
   serializedVersion: 4
@@ -437,7 +441,7 @@ MonoBehaviour:
   - {fileID: 3336873203621866634, guid: a6521255e36a0e74fa1eb5132522d15f, type: 3}
   - {fileID: 6780706702104538721, guid: a6521255e36a0e74fa1eb5132522d15f, type: 3}
   - {fileID: 6342312713411081931, guid: a6521255e36a0e74fa1eb5132522d15f, type: 3}
-  frameRate: 6
+  frameRate: 8
   isLooping: 1
   frameIndex: 0
   timer: 0

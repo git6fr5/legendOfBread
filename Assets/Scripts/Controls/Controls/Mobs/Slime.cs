@@ -12,24 +12,26 @@ public class Slime : Mob {
     public float force = 1f;
     public float knockDuration = 0.15f;
 
+    // slime splitting mechanic
+    public Slime parentSlime;
+    public Slime childSlime;
     public bool isBig = true;
     public float growTime = 2f;
     public float growTicks = 0f;
 
+    // motion controls
     float moduloTime = 0f;
     float period = 1f;
-
-    public Slime parentSlime;
-    public Slime childSlime;
-
 
     public Slime() {
         id = 1;
     }
 
     /* --- OVERRIDE --- */
+
     public override void IdleAction() {
-        print("Idle Action");
+
+        // looks for a player to chase
         for (int i = 0; i < vision.container.Count; i++) {
             if (vision.container[i].tag == playerTag) {
                 actionState = ActionState.ACTIVE;
@@ -37,40 +39,28 @@ public class Slime : Mob {
             }
         }
 
-        Grow();
-    }
-
-    public override void ExcitedAction() {
-        actionState = ActionState.ACTIVE;
-        Grow();
     }
 
     public override void ActiveAction() {
-        //
+        
+        // if this slime is cactive then make it get older
+        GetOlder();
+
+        // adds a little sinusoidal motion to the slime
         moduloTime = (moduloTime + Time.deltaTime) % (period / (2 * Mathf.PI));
         moveSpeed = state.baseSpeed * Mathf.Pow(Mathf.Sin(moduloTime * Mathf.PI * 2 / period), 4);
 
+        // finds a player to chase after
         for (int i = 0; i < vision.container.Count; i++) {
             if (vision.container[i].tag == playerTag) {
                 movementVector = vision.container[i].transform.position - transform.position;
-                Grow();
                 return;
             }
         }
 
+        // if no players were found
         actionState = ActionState.IDLE;
-        Grow();
-        return;
-    }
 
-    void Grow() {
-        if (!isBig) {
-            growTicks += Time.deltaTime;
-            if (growTicks > growTime) {
-                Die();
-                Instantiate(parentSlime.gameObject, transform.position, Quaternion.identity, transform);
-            }
-        }
     }
 
     public override void Hit(Hitbox hitbox) {
@@ -83,27 +73,40 @@ public class Slime : Mob {
 
     }
 
-    public override void Die() {
-
-        for (int i = 0; i < transform.childCount; i++) {
-            transform.GetChild(i).gameObject.SetActive(false);
-        }
+    public override void DeathAction() {
 
         if (isBig) {
-            // need to add this to the list of cached room objects!!!
-            state.isDead = false;
-            // because we can't just turn off the gameObject
-            // since leaving and returning will just turn it back on
+
+            Dungeon dungeon = GameObject.FindWithTag("Dungeon").GetComponent<Dungeon>();
+
             for (int i = 0; i < 2; i++) {
-                Instantiate(childSlime.gameObject, transform.position + (Vector3)Random.insideUnitCircle * 0.5f, Quaternion.identity, transform);
+                GameObject newSlimeObject = Instantiate(childSlime.gameObject, transform.position + (Vector3)Random.insideUnitCircle * 0.5f, Quaternion.identity);
+                if (dungeon != null) {
+                    dungeon.AddNewObject(newSlimeObject);
+                }
             }
         }
 
-        // diable the controller and state
-        state.direction = Direction.RIGHT;
-        state._renderer.gameObject.GetComponent<MobRenderer>().SetDirection(state);
-        state.enabled = false;
-        enabled = false;
+    }
+
+
+    void GetOlder() {
+        if (!isBig) {
+            growTicks += Time.deltaTime;
+            if (growTicks > growTime) {
+
+                Dungeon dungeon = GameObject.FindWithTag("Dungeon").GetComponent<Dungeon>();
+
+                GameObject newSlimeObject = Instantiate(parentSlime.gameObject, transform.position + (Vector3)Random.insideUnitCircle * 0.5f, Quaternion.identity);
+               
+                if (dungeon != null) {
+                    dungeon.AddNewObject(newSlimeObject);
+                }
+
+                Destroy(gameObject);
+
+            }
+        }
     }
 
 }

@@ -14,9 +14,13 @@ public class GameRules : MonoBehaviour {
 
     public static int gameTicks;
 
+    public static string meshTag = "Mesh";
+
+
     void Update() {
         print("game tick");
         gameTicks++;
+        MinimumSort();
     }
 
     public static int HashID(int seed, int[] id) {
@@ -33,5 +37,24 @@ public class GameRules : MonoBehaviour {
         val = (int)(_val * 1e8);
         Log.WriteValue("Output seed: ", val, debugPrio, debugTag);
         return val;
+    }
+
+    public static void MinimumSort() {
+        print("Sorting");
+        // Declare the object array and the array of sorted characters
+        GameObject[] unsortedObjects = GameObject.FindGameObjectsWithTag(meshTag);
+
+        // assumes all the objects tagged with meshes have mesh components
+        Mesh[] meshes = new Mesh[unsortedObjects.Length];
+        for (int i = 0; i < unsortedObjects.Length; i++) {
+            meshes[i] = unsortedObjects[i].GetComponent<Mesh>();
+        }
+
+        // the depth is understood as the position of the y axis
+        // sort these
+        Array.Sort<Mesh>(meshes, new Comparison<Mesh>((meshA, meshB) => Mesh.Compare(meshA, meshB)));
+        for (int i = 0; i < meshes.Length; i++) {
+            meshes[i]._renderer.spriteRenderer.sortingOrder = i;
+        }
     }
 }

@@ -6,7 +6,6 @@ using Direction = Compass.Direction;
 
 public class Scorpion : Mob {
 
-    Vector2 targetPoint;
 
     static int syncTicks = 512;
 
@@ -14,18 +13,8 @@ public class Scorpion : Mob {
     public float force = 1f;
     public float knockDuration = 0.15f;
 
-    public int boundRight;
-    public int boundLeft;
-    public int boundUp;
-    public int boundDown;
-
-    public Room room;
-
-    //float idleTicks;
-    //float idleInterval = 3f;
-    Vector3 targetPos = Vector3.zero;
-
-    public float aggroSpeed = 1.5f;
+    Vector2 targetPoint;
+    Vector2 targetOffset = new Vector3(0.5f, 0.5f);
 
     public Scorpion() {
         id = 2;
@@ -34,98 +23,47 @@ public class Scorpion : Mob {
     /* --- OVERRIDE --- */
     public override void IdleAction() {
 
-        //for (int i = 0; i < vision.container.Count; i++) {
-        //    if (vision.container[i].tag == playerTag) {
-        //        actionState = ActionState.ACTIVE;
-        //        return;
-        //    }
-        //}
-
-        //idleTicks += Time.deltaTime;
-        //if (idleTicks >= idleInterval) {
-        //    actionState = ActionState.EXCITED;
-        //    idleTicks = 0f;
-        //    return;
-        //}
-
         // syncs the scorpions up
         if (GameRules.gameTicks % syncTicks == 0) {
-            actionState = ActionState.EXCITED;
+            actionState = ActionState.ACTIVE;
         }
 
     }
-
-    public override void ExcitedAction() {
-
-        // working under the assumption that the room object can be found
-        if (room == null) {
-            GetRoomBounds();
-        }
-
-        // operating under the assumption that we'll always be able to find a room
-
-        if (targetPos == Vector3.zero) {
-            int[] gridPoint = room.PointToGrid(transform.position);
-
-            int i = Random.Range(gridPoint[0] - 1, gridPoint[0] + 2);
-            int j = Random.Range(gridPoint[1] - 1, gridPoint[1] + 2);
-
-            if (i > boundUp || i < boundDown) {
-                print("reset i");
-                i = gridPoint[0];
-            }
-            if (j < boundLeft || j > boundRight) {
-                print("reset j");
-                j = gridPoint[1];
-            }
-
-            //int i = Random.Range(boundUp, boundDown);
-            //int j = Random.Range(boundLeft, boundRight);
-
-            targetPos = (Vector3)room.GridToTileMap(i, j);
-            print(Log.ID(new int[] { i, j }));
-            print(targetPos);
-        }
-
-        Vector3 pos = transform.position - new Vector3(0.5f, 0.5f, 0);
-
-        // if we reached the target position
-        if (Vector2.Distance(targetPos, pos) < 0.05f) {
-            transform.position = targetPos + new Vector3(0.5f, 0.5f, 0);
-            targetPos = Vector3.zero;
-            actionState = ActionState.IDLE;
-        }
-        else {
-            movementVector = targetPos - pos;
-            if (movementVector.x > 0f) {
-                state.direction = Direction.RIGHT;
-            }
-            else {
-                state.direction = Direction.LEFT;
-            }
-        }
-
-    }
-
 
     public override void ActiveAction() {
 
-        //
-        moveSpeed = state.baseSpeed * aggroSpeed;
+        // working under the assumption that the room object can be found
+        if (room == null) { return; }
 
-        for (int i = 0; i < vision.container.Count; i++) {
-            if (vision.container[i].tag == playerTag) {
-                movementVector = vision.container[i].transform.position - transform.position;
-                return;
+        // operating under the assumption that we'll always be able to find a room
+        if (targetPoint == Vector2.zero) {
+            targetPoint = GetAdjacentPosition();
+        }
+
+        // if we're colliding with another scorpion
+        if (GameRules.gameTicks % syncTicks == 0) {
+            Hitbox ourHitbox = state.hitbox;
+            for (int i = 0; i < ourHitbox.container.Count; i++) {
+                if (ourHitbox.container[i].state.GetComponent<Scorpion>() != null) {
+                    targetPoint = GetAdjacentPosition();
+                }
             }
         }
 
-        actionState = ActionState.IDLE;
+        // if we reached the target position
+        if (Vector2.Distance(targetPoint + targetOffset, (Vector2)transform.position) < 0.05f) {
+            transform.position = (Vector3)(targetPoint + targetOffset);
+            targetPoint = Vector3.zero;
+            actionState = ActionState.IDLE;
+        }
+        else {
+            movementVector = targetPoint + targetOffset - (Vector2)transform.position;
+        }
 
-        return;
     }
 
     public override void Hit(Hitbox hitbox) {
+
         // do damage?
         if (hitbox.state.tag == playerTag) {
             hitbox.state.Hurt(attackDamage);
@@ -133,24 +71,31 @@ public class Scorpion : Mob {
             hitbox.state.Knock(force, direction, knockDuration);
         }
 
-        targetPos = Vector3.zero;
+        targetPoint = GetAdjacentPosition();
 
     }
 
-    void GetRoomBounds() {
-        room = GameObject.FindWithTag("Room").GetComponent<Room>();
+    Vector2 GetAdjacentPosition() {
 
-        // room bounds
-        int sizeHor = room.sizeHorizontal;
-        int sizeVert = room.sizeVertical;
-        int boundHor = room.borderHorizontal;
-        int boundVert = room.borderVertical;
+        // get our point in the room
+        int[] point = room.PointToGrid(transform.position);
+        
+        // getting some coordinates
+        int y = point[0];
+        int x = point[1];
+        int i = Random.Range(-1, 2);
+        int j = Random.Range(-1, 2);
 
-        // set the bounds (add 1 for padding because its with respect to the center of the object)
-        boundRight = sizeHor - (boundHor / 2) - 2;
-        boundLeft = (boundHor / 2) + 1;
-        boundUp = sizeVert - (boundVert / 2) - 2;
-        boundDown = (boundVert / 2) + 1;
+        if (y + i  > vertBounds[1] || y + i < vertBounds[0]) {
+            i = -i;
+        }
+        if (x + j > horBounds[1] || x + j < horBounds[0]) {
+            j = -j;
+        }
+        return (Vector2)(Vector3)room.GridToTileMap(y + i, x + j);
+
     }
+
+
 
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+using Tiles = Room.Tiles;
+
 public class Layout : MonoBehaviour {
 
     // the layout tiles
@@ -13,25 +15,33 @@ public class Layout : MonoBehaviour {
     /* --- VARIABLES --- */
     // an array of indices pointing to where the 
     // input tile should be in the organized list
-    int[] directionalOrder = new int[] {
-        4+8, 8, 8+1, 4+8+1,
-        4, 0, 1, 4+1,
-        2+4, 2, 2+1, 2+4+1,
-        2+4+8, 2+8, 2+8+1, 2+4+8+1
+
+    Tiles[] inputOrder = new Tiles[] {
+        // the outer corners
+        Tiles.LEFT_UP, Tiles.UP, Tiles.UP_RIGHT, // left_top, 
+        Tiles.LEFT, Tiles.CENTER, Tiles.RIGHT,
+        Tiles.DOWN_LEFT, Tiles.DOWN, Tiles.DOWN_RIGHT,
     };
 
     /* --- METHODS --- */
 
     // reorder the layouts to be compatible with the directional enum
-    public void SetDirectionalOrder() {
-        List<TileBase> _tiles = new List<TileBase>();
-        for (int i = 0; i < directionalOrder.Length + 1; i++) {
-            _tiles.Add(nullTile);
+    public void SetOrder() {
+
+        TileBase[] _tiles = new TileBase[(int)Tiles.tileCount];
+        _tiles[0] = nullTile;
+
+        for (int i = 0; i < inputOrder.Length; i++) {
+
+            Tiles nextTile = inputOrder[i];
+            int nextTileIndex = (int)nextTile;
+
+            _tiles[nextTileIndex] = tiles[i];
+
         }
-        for (int i = 0; i < directionalOrder.Length; i++) {
-            _tiles[directionalOrder[i] + 1] = tiles[i];
-        }
-        tiles = _tiles.ToArray();
+
+        tiles = _tiles;
+
     }
 
     // set the tiles to a given set of tiles

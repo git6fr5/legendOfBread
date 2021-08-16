@@ -245,6 +245,14 @@ PrefabInstance:
       propertyPath: dungeon
       value: 
       objectReference: {fileID: 7497367834391583589}
+    - target: {fileID: 3517672950090058742, guid: 14221c5ddad149c4d9619c093f9c22ed, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -9192601
+      objectReference: {fileID: 0}
+    - target: {fileID: 3517672950090058742, guid: 14221c5ddad149c4d9619c093f9c22ed, type: 3}
+      propertyPath: m_SortingLayer
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 14221c5ddad149c4d9619c093f9c22ed, type: 3}
 --- !u!4 &6083610723431887763 stripped

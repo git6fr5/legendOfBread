@@ -18,6 +18,8 @@ public class Character : Renderer2D
 
     public override void Render(State state) {
 
+        transform.localPosition = Vector3.zero;
+
         // Animation
         if (state.isAttacking) {
             if (currAnimation == attackAnimation && !currAnimation.isPlaying) {
@@ -36,6 +38,11 @@ public class Character : Renderer2D
             // if we're moving, get the direction and play the animation
             walkingAnimation.SetDirection(state.direction);
             PlayAnimation(walkingAnimation);
+
+            if (walkingAnimation.frameIndex % 2 == 1) {
+                transform.localPosition = new Vector3(0, 0.025f, 0);
+            }
+
         }
         else {
             // stop any animations if necessary

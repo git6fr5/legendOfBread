@@ -12,13 +12,13 @@ public class ToolBrush : MonoBehaviour {
     public Layout interiorLayout;
 
     // the current room tags
-    public SpriteRenderer shapeTag;
+    public SpriteRenderer currShapeTag;
     public Sprite[] shapeTags;
 
-    public SpriteRenderer pathTag;
+    public SpriteRenderer currPathTag;
     public Sprite[] pathTags;
 
-    public SpriteRenderer challengeTag;
+    public SpriteRenderer currChallengeTag;
     public Sprite[] challengeTags;
 
     /* --- VARIABLES --- */

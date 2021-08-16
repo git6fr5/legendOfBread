@@ -18,6 +18,7 @@ public class Player : Controller {
 
     /* --- VARIABLES --- */
     public KeyCode attackKey = KeyCode.J;
+    public KeyCode runKey = KeyCode.Z;
 
     public Dictionary<KeyCode, Vector2> movementKeys = new Dictionary<KeyCode, Vector2>() {
         { KeyCode.W, Vector2.up },
@@ -27,7 +28,8 @@ public class Player : Controller {
     };
     public KeyCode lastPressedKey = KeyCode.W;
 
-    [Range(0.05f, 1f)] public float attackMoveSlowMultiplier = 0.5f;
+    [Range(0.05f, 1f)] public float slowMultiplier = 0.25f;
+    [Range(0.05f, 2f)] public float fastMultiplier = 1.25f;
 
     /* --- OVERRIDE --- */
     public override void Think() {
@@ -54,7 +56,10 @@ public class Player : Controller {
 
         // get the speed of the player
         if (state.isAttacking) {
-            moveSpeed = state.baseSpeed * attackMoveSlowMultiplier;
+            moveSpeed = state.baseSpeed * slowMultiplier;
+        }
+        else if (Input.GetKey(runKey)) {
+            moveSpeed = state.baseSpeed * fastMultiplier;
         }
 
         // get the last pressed key

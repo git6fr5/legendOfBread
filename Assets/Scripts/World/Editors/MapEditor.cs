@@ -98,7 +98,7 @@ public class MapEditor : Map {
         using (StreamWriter outputFile = new StreamWriter(GameRules.Path + path + fileName + fileExtension)) {
             outputFile.WriteLine(saveString);
         }
-
+ 
     }
 
     /* --- INITIALIZERS --- */
@@ -215,11 +215,11 @@ public class MapEditor : Map {
     void AddShape(int[] origin) {
         if (PointInGrid(origin)) {
             int room = mapChannels[(int)Channel.SHAPE][origin[0]][origin[1]];
-            if ((room + 1) % (int)Shape.roomCount == 0) {
+            if ((room + 1) % (int)Shape.shapeCount == 0) {
                 RemoveShape(origin);
             }
             else {
-                mapChannels[(int)Channel.SHAPE][origin[0]][origin[1]] = (room + 1) % (int)Shape.roomCount;
+                mapChannels[(int)Channel.SHAPE][origin[0]][origin[1]] = (room + 1) % (int)Shape.shapeCount;
             }
         }
     }

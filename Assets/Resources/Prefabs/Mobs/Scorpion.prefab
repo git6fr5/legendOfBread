@@ -181,6 +181,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _renderer: {fileID: 1776046077435308371}
   controller: {fileID: 1776046076715974144}
+  inventory: {fileID: 0}
   body: {fileID: 1776046076715974148}
   hitbox: {fileID: 1776046075912176782}
   weapon: {fileID: 0}
@@ -213,17 +214,12 @@ MonoBehaviour:
   attack: 0
   playerTag: Player
   vision: {fileID: 1776046077753884404}
+  item: {fileID: 2435180298719549906, guid: 8507ed7ce2e25434786f69269a031cf8, type: 3}
   actionState: 0
   origin: {x: 0, y: 0, z: 0}
   attackDamage: 1
   force: 1.5
   knockDuration: 0.35
-  boundRight: 0
-  boundLeft: 0
-  boundUp: 0
-  boundDown: 0
-  room: {fileID: 0}
-  aggroSpeed: 1.5
 --- !u!50 &1776046076715974148
 Rigidbody2D:
   serializedVersion: 4

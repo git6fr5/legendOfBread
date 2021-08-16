@@ -22,8 +22,7 @@ public class RoomEditor : Room {
     /* --- COMPONENTS --- */
 
     // menu
-    [Space(5)][Header("UI")]
-    public RoomMenu menu;
+    [Space(5)] [Header("UI")]
     public ToolBrush toolBrush;
 
     // temp
@@ -35,8 +34,7 @@ public class RoomEditor : Room {
 
     /* --- VARIABLES --- */
     // mode
-    [Space(5)][Header("Edit Mode")]
-    public Channel brushChannel = Channel.INTERIOR;
+    [Space(5)] [Header("Edit Mode")]
     public int brushIndex = 1;
 
     /* --- UNITY --- */
@@ -44,18 +42,100 @@ public class RoomEditor : Room {
     // runs every time this is activated
     void Start() {
         SetTags(null);
-        SetGrid();
-
-        AddShape(defaultShape, Channel.GROUND);
-        AddBorder(defaultShape, Channel.WALL);
-
         PrintRoom();
     }
 
     // runs once every frame
     void Update() {
         if (GetInput()) {
-            PrintRoom();
+            PrintGridToMap(interiorGrid, interiorMap, interiorLayout);
+        }
+    }
+
+    /* --- INITIALIZERS --- */
+
+    // initialize an empty dictionary of tags
+    void SetTags(int[] tagArray) {
+        if (tagArray == null) { tagArray = new int[3] { 1, 1, 1 }; }
+
+        tagDict = new Dictionary<MapChannel, int>();
+        for (int n = 0; n < (int)MapChannel.channelCount; n++) {
+            if (n < tagArray.Length) {
+                tagDict[(MapChannel)n] = tagArray[n];
+            }
+            else {
+                tagDict[(MapChannel)n] = 0;
+            }
+        }
+
+        IncrementShapeTag(0);
+        // toolBrush.currPathTag.sprite = toolBrush.pathTags[tagDict[MapChannel.PATH]];
+        IncrementChallengeTag(0);
+    }
+
+    public void IncrementShapeTag(int increment = 1) {
+
+        // increment the tags
+        int newIndex = IncrementTag(MapChannel.SHAPE, increment, (int)Shape.shapeCount);
+        toolBrush.currShapeTag.sprite = toolBrush.shapeTags[newIndex];
+
+        SetBorder((Shape)newIndex);
+        PrintRoom();
+    }
+
+    public void IncrementPathTag() {
+        //
+    }
+
+    // set the tag for that channel using the dropdown buttons
+    public void IncrementChallengeTag(int increment = 1) {
+
+        int newIndex = IncrementTag(MapChannel.CHALLENGE, increment, (int)Challenge.challengeCount, true);
+        toolBrush.currChallengeTag.sprite = toolBrush.challengeTags[newIndex];
+        
+        // set the palette
+        toolBrush.SetPalette((Challenge)newIndex);
+        PrintRoom();
+    }
+
+    int IncrementTag(MapChannel channel, int increment, int count, bool allowZero = false) {
+        int newIndex = (tagDict[channel] + increment) % (int)count;
+        if (!allowZero && newIndex == 0) {
+            newIndex = 1;
+        }
+        tagDict[channel] = newIndex;
+        return newIndex;
+    }
+
+    public void SetBrushIndex(int index) {
+        brushIndex = index;
+        print("Setting Brush Index");
+    }
+
+    /* --- INPUT --- */
+    bool GetInput() {
+
+        if (Input.GetMouseButtonDown(0)) {
+            int[] mouseCoords = ClickToGrid();
+            EditPoint(mouseCoords);
+            return true;
+        }
+        if (Input.GetMouseButtonDown(1)) {
+            int[] mouseCoords = ClickToGrid();
+            RemovePoint(mouseCoords, interiorGrid);
+            return true;
+        }
+        return false;
+
+    }
+
+    /* --- CONSTRUCTION --- */
+
+    // adds a point at the given coordinates
+    public void EditPoint(int[] point) {
+        if (PointWithinBorders(point)) {
+            // print("Editing Point");
+            interiorGrid[point[0]][point[1]] = (int)brushIndex;
         }
     }
 
@@ -66,9 +146,6 @@ public class RoomEditor : Room {
         Read(fileName);
         GetTags(fileName);
         PrintRoom();
-
-        // temp
-        menu.ToggleChallenge((Challenge)tagDict[MapChannel.CHALLENGE]);
     }
 
     // saves all the room data to the necessary places
@@ -82,19 +159,17 @@ public class RoomEditor : Room {
         Log.WriteFile(fileName);
 
         string saveString = "";
-        for (int n = 0; n < (int)Channel.channelCount; n++) {
-            for (int i = 0; i < sizeVertical; i++) {
-                for (int j = 0; j < sizeHorizontal; j++) {
-                    saveString += roomChannels[n][i][j].ToString();
-                    saveString += " ";
-                }
-                saveString += "\t";
+        for (int i = 0; i < sizeVertical; i++) {
+            for (int j = 0; j < sizeHorizontal; j++) {
+                saveString += interiorGrid[i][j].ToString();
+                saveString += " ";
             }
-            saveString += "\n";
+            saveString += "\t";
         }
         using (StreamWriter outputFile = new StreamWriter(GameRules.Path + path + fileName + fileExtension)) {
             outputFile.WriteLine(saveString);
         }
+
 
     }
 
@@ -140,257 +215,7 @@ public class RoomEditor : Room {
         using (StreamWriter outputFile = new StreamWriter(GameRules.Path + path + tagFile)) {
             outputFile.Write(writeTagDataString);
         }
-    }
 
-    /* --- INITIALIZERS --- */
-
-    // initialize an empty dictionary of tags
-    void SetTags(int[] tagArray) {
-        if (tagArray == null) { tagArray = new int[1]; }
-
-        tagDict = new Dictionary<MapChannel, int>();
-        for (int n = 0; n < (int)MapChannel.channelCount; n++) {
-            if (n < tagArray.Length) {
-                tagDict[(MapChannel)n] = tagArray[n];
-            }
-            else {
-                tagDict[(MapChannel)n] = 0;
-            }
-        }
-
-        // temporarily
-        tagDict[MapChannel.SHAPE] = (int)Shape.SQUARE;
-        tagDict[MapChannel.PATH] = 1;
-
-        toolBrush.shapeTag.sprite = toolBrush.shapeTags[tagDict[MapChannel.SHAPE]];
-        toolBrush.pathTag.sprite = toolBrush.pathTags[tagDict[MapChannel.PATH]];
-        toolBrush.challengeTag.sprite = toolBrush.challengeTags[tagDict[MapChannel.CHALLENGE]];
-
-    }
-
-    // set the tag for that channel using the dropdown buttons
-    public void SetTag(int tagIndex) {
-        // hard set to the channel for challenges at the moment
-        tagDict[MapChannel.CHALLENGE] = tagIndex;
-        toolBrush.challengeTag.sprite = toolBrush.challengeTags[tagIndex];
-        toolBrush.SetPalette((Challenge)tagIndex);
-    }
-
-    // initialize a grid full of empty tiles
-    void SetGrid() {
-        roomChannels = new int[(int)Channel.channelCount][][];
-        for (int n = 0; n < (int)Channel.channelCount; n++) {
-            roomChannels[n] = new int[sizeVertical][];
-            for (int i = 0; i < sizeVertical; i++) {
-                roomChannels[n][i] = new int[sizeHorizontal];
-                for (int j = 0; j < sizeHorizontal; j++) {
-                    roomChannels[n][i][j] = 0;
-                }
-            }
-        }
-    }
-
-    // sets the current channel thats being edited
-    public void SetBrushChannel(int selectedChannel) {
-        brushChannel = (Channel)selectedChannel;
-    }
-
-    public void SetBrushIndex(int index) {
-        brushIndex = index;
-        print("Setting Brush Index");
-    }
-
-    /* --- INPUT --- */
-    bool GetInput() {
-
-        switch (brushChannel) {
-            case Channel.INTERIOR:
-                if (Input.GetMouseButtonDown(0)) {
-                    int[] mouseCoords = ClickToGrid();
-                    EditPoint(mouseCoords, Channel.INTERIOR);
-                    return true;
-                }
-                if (Input.GetMouseButtonDown(1)) {
-                    int[] mouseCoords = ClickToGrid();
-                    RemovePoint(mouseCoords, Channel.INTERIOR);
-                    return true;
-                }
-                return false;
-            default:
-                return false;
-        }
-    }
-
-    /* --- DISPLAY --- */
-    public void PrintRoom() {
-        PrintChannel(Channel.GROUND);
-        PrintChannel(Channel.INTERIOR);
-        PrintChannel(Channel.WALL);
-    }
-
-    /* --- CONSTRUCTION --- */
-    // adds a point at the given coordinates
-    public void AddPoint(int[] point, Channel channel) {
-        if (PointInGrid(point)) {
-            // print("Adding Point");
-            roomChannels[(int)channel][point[0]][point[1]] = (int)brushIndex;
-        }
-        // CleanInterior();
-    }
-
-    // adds a point at the given coordinates
-    public void EditPoint(int[] point, Channel channel, Tiles tile = Tiles.CENTER) {
-        if (PointWithinGrid(point)) {
-            // print("Editing Point");
-            roomChannels[(int)channel][point[0]][point[1]] = (int)brushIndex;
-        }
-        // CleanInterior();
-    }
-
-    // add a shape sub grid
-    public void AddShape(Shape shape, Channel channel) {
-        // create the shape sub grid
-        int dimensionVertical = sizeVertical - 2 * borderVertical;
-        int dimensionHorizontal = sizeHorizontal - 2 * borderHorizontal;
-        int[][] subGrid = Geometry.ShapeGrid(shape, (int)Tiles.EMPTY, (int)Tiles.CENTER, dimensionVertical, dimensionHorizontal);
-        // add the shape sub grid to the grid
-        AttachToGrid(subGrid, channel);
-    }
-
-    // add a shape sub grid
-    public void AddBorder(Shape shape, Channel channel) {
-        // create the shape sub grid
-        int[][] subGrid = Geometry.BorderGrid(shape, (int)Tiles.EMPTY, (int)Tiles.CENTER, sizeVertical, sizeHorizontal, borderHorizontal, borderVertical);
-        // add the shape sub grid to the grid
-        AttachToGrid(subGrid, channel, true);
-        CleanBorder();
-    }
-
-    // attach a sub grid to the grid
-    public void AttachToGrid(int[][] subGrid, Channel channel, bool isBorder = false) {
-        int[] anchor = new int[] { 0, 0 };
-        if (!isBorder) {
-            anchor[0] += borderVertical;
-            anchor[1] += borderHorizontal;
-        }
-        for (int i = 0; i < subGrid.Length; i++) {
-            for (int j = 0; j < subGrid[0].Length; j++) {
-                if (subGrid[i][j] != (int)Tiles.EMPTY) {
-                    int[] point = new int[] { i + anchor[0], j + anchor[1] };
-                    if (PointInGrid(point)) {
-                        roomChannels[(int)channel][i + anchor[0]][j + anchor[1]] = subGrid[i][j];
-
-                    }
-                }
-            }
-        }
-    }
-
-    // iterate through the grid and clean each cell
-    public void CleanInterior() {
-        for (int i = borderVertical; i < sizeVertical - borderVertical; i++) {
-            for (int j = borderHorizontal; j < sizeHorizontal - borderHorizontal; j++) {
-                CleanInteriorCell(i, j);
-            }
-        }
-    }
-
-    // check what type of cell it is based on its immediate surroundings
-    public void CleanInteriorCell(int i, int j) {
-        // check only the non-empty tiles
-        int value = 1; // starting from one to account for the 0th null tile
-        if (roomChannels[(int)Channel.INTERIOR][i][j] != (int)Tiles.EMPTY) {
-            // is top empty
-            if (CellEmpty(i - 1, j, Channel.INTERIOR)) {
-                value += 8;
-            }
-            // is right empty
-            if (CellEmpty(i, j - 1, Channel.INTERIOR)) {
-                value += 4;
-            }
-            // is bottom empty
-            if (CellEmpty(i + 1, j, Channel.INTERIOR)) {
-                value += 2;
-            }
-            // is left empty (i think this might be backwards but it just started working and im scared to mess with it)
-            if (CellEmpty(i, j + 1, Channel.INTERIOR)) {
-                value += 1;
-            }
-            roomChannels[(int)Channel.INTERIOR][i][j] = value;
-        }
-    }
-
-    public void CleanBorder() {
-        for (int i = 1; i < sizeVertical - 1; i++) {
-            for (int j = 1; j < sizeHorizontal - 1; j++) {
-                CleanBorderCell(i, j);
-            }
-        }
-        roomChannels[(int)Channel.WALL][borderHorizontal - 1][borderVertical - 1] = 1 + 8 + 4;
-        roomChannels[(int)Channel.WALL][borderHorizontal - 1][sizeVertical - borderVertical] = 1 + 8 + 1;
-        roomChannels[(int)Channel.WALL][sizeHorizontal - borderHorizontal][borderVertical - 1] = 1 + 2 + 4;
-        roomChannels[(int)Channel.WALL][sizeHorizontal - borderHorizontal][sizeVertical - borderVertical] = 1 + 2 + 1;
-
-    }
-
-    void CleanBorderCell(int i, int j) {
-        // check only the non-empty tiles
-        int value = 1; // starting from one to account for the 0th null tile
-        if (roomChannels[(int)Channel.WALL][i][j] != (int)Tiles.EMPTY) {
-            // is top empty then point towards top
-            if (CellEmpty(i - 1, j, Channel.WALL)) {
-                value += 2;
-            }
-            // if right empty then point right
-            if (CellEmpty(i, j - 1, Channel.WALL)) {
-                value += 1;
-            }
-            // if bottom empty then point down
-            if (CellEmpty(i + 1, j, Channel.WALL)) {
-                value += 8;
-            }
-            // if left empty then point left
-            if (CellEmpty(i, j + 1, Channel.WALL)) {
-                value += 4;
-            }
-            roomChannels[(int)Channel.WALL][i][j] = value;
-        }
-    }
-
-    // check if the cell at the given coordinates is empty
-    bool CellEmpty(int i, int j, Channel channel) {
-        if (i < 0 || i > sizeVertical - 1 || j < 0 || j > sizeHorizontal - 1) { return true; }
-        if (roomChannels[(int)channel][i][j] == (int)Tiles.EMPTY) {
-            return true;
-        }
-        return false;
-    }
-
-    /* --- CONVERSION --- */
-    // mouse click to grid coordinate
-    public int[] ClickToGrid() {
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        return PointToGrid(mousePos);
-    }
-
-    // checks if a coordinate is in the grid
-    public bool PointInGrid(int[] point) {
-        bool isInGrid = (point[1] < sizeHorizontal && point[1] >= 0 && point[0] < sizeVertical && point[0] >= 0);
-        if (!isInGrid) {
-            // print(point[0] + ", " + point[1] + " was not in the grid");
-        }
-        return isInGrid;
-    }
-
-    // checks if a coordinate is in the grid
-    public bool PointWithinGrid(int[] point) {
-        bool isInHor = (point[1] < sizeHorizontal - borderHorizontal && point[1] >= borderHorizontal);
-        bool isInVert = (point[0] < sizeVertical - borderVertical && point[0] >= borderVertical);
-        bool isInGrid = (isInHor && isInVert);
-        if (!isInGrid) {
-            // print(point[0] + ", " + point[1] + " was not within the grid");
-        }
-        return isInGrid;
     }
 
 }

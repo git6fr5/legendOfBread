@@ -53,8 +53,9 @@ public class Exit : MonoBehaviour {
 
             // slightly different values along the x and y axis because of the rectangular shape
             // of the players hitbox
-            Vector3 deltaPosition = new Vector3(-exitID[1] * 8.05f, exitID[0] * 8.05f, 0);
+            Vector3 deltaPosition = new Vector3(-exitID[1] * 8.35f, exitID[0] * 8.35f, 0);
             hitbox.state.transform.position = currPosition + deltaPosition;
+            hitbox.state.controller.movementVector = Vector2.zero;
 
             // load the new room
             int[] newID = new int[] { dungeon.roomID[0] + exitID[0], dungeon.roomID[1] + exitID[1] };

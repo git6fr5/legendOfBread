@@ -13,13 +13,18 @@ public class State : MonoBehaviour {
     // rendering
     [Space(5)][Header("Renderer")]
     public Renderer2D _renderer;
+
     // controls
     [Space(5)][Header("Controls")]
     public Controller controller;
+    public Inventory inventory;
+
     // collision
     [Space(5)][Header("Collision")]
     public Rigidbody2D body;
     public Hitbox hitbox;
+    public Transform shadow;
+
     //
     public Weapon weapon;
 
@@ -31,11 +36,14 @@ public class State : MonoBehaviour {
     // states
     [Space(5)][Header("Movement")]
     public Direction direction = Direction.RIGHT;
+
     public bool isAttacking = false;
     public bool isMoving = false;
     public bool isBurning = false;
     public bool isHurt = false;
     public bool isDead = false;
+
+
     public float baseSpeed = 0.5f;
     float hurtBuffer = 0.4f;
     float deathBuffer = 0.6f;
@@ -53,38 +61,52 @@ public class State : MonoBehaviour {
 
     /* --- METHODS --- */
     public void Hurt(int damage) {
-        // if (!isHurt) {
+
         currHealth -= damage;
+
+        // die if health goes before zero
         if (currHealth <= 0 && !isDead) {
             Death();
         }
+
+        // otherwise simply take damage
         else {
             isHurt = true;
             StartCoroutine(IEHurt(hurtBuffer));
         }
-        // }
+
     }
 
     public void Death() {
+
         isDead = true;
-        body.isKinematic = true;
+
+        // disable the hibox
         hitbox.gameObject.SetActive(false);
+        // disable the mesh
+        body.isKinematic = true;
+        // disable the controller
         controller.enabled = false;
+
+        // set the state to death, and at the end of the buffer
+        // call the controller to die
         StartCoroutine(IEDead(deathBuffer));
+
     }
 
     public void Knock(float magnitude, Vector2 direction, float duration) {
-        if (controller.enabled && gameObject.activeSelf) {
-            body.velocity = (magnitude * direction.normalized) / duration;
-            controller.enabled = false;
-            StartCoroutine(IEKnock(duration));
-        }
+        
+        // controller.Push()
+        // maybe this should be called stun?
+
     }
 
     public void Burn(int burnDamage, int ticks) {
         isBurning = true;
         StartCoroutine(IEBurn(burnBuffer, burnDamage, ticks));
     }
+
+    /* --- COROUTINES --- */
 
     private IEnumerator IEKnock(float delay) {
         yield return new WaitForSeconds(delay);

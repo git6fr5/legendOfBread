@@ -14,19 +14,15 @@ public class MobRenderer : Renderer2D {
     public Material hurtMaterial;
     public Material deathMaterial;
 
+    void Awake() {
+        movingAnimation.frameIndex = Random.Range(0, movingAnimation.frames.Length - 1);
+        PlayAnimation(movingAnimation);
+    }
+
     public override void Render(State state) {
 
         // Animation
-        if (state.isMoving) {
-            // if we're moving, get the direction and play the animation
-            PlayAnimation(movingAnimation);
-        }
-        else {
-            // stop any animations if necessary
-            SetSprite(defaultSprite);
-            StopAnimation();
-        }
-
+        PlayAnimation(movingAnimation);
         SetDirection(state);
 
 

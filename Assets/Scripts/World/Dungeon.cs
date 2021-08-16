@@ -54,25 +54,32 @@ public class Dungeon : MonoBehaviour
     }
 
     (string, Shape, Directions, int[], int) GetRoom(int[] id) {
+        
         Shape shape = (Shape)map.mapChannels[(int)MapChannel.SHAPE][id[0]][id[1]];
         Directions exits = (Directions)map.mapChannels[(int)MapChannel.PATH][id[0]][id[1]];
+        Challenge challenge = (Challenge)map.mapChannels[(int)MapChannel.CHALLENGE][id[0]][id[1]];
 
         // use these to get an appropriate room
-        // but for now
-
         List<KeyValuePair<string, int[]>> tempRoomFiles = new List<KeyValuePair<string, int[]>>();
         foreach (KeyValuePair<string, int[]> _tagData in roomsTagData) {
-            if (_tagData.Value[(int)MapChannel.CHALLENGE] == map.mapChannels[(int)MapChannel.CHALLENGE][id[0]][id[1]]) {
-                tempRoomFiles.Add(_tagData);
+            Shape _shape = (Shape)_tagData.Value[(int)MapChannel.SHAPE];
+            // Directions _exits = _tagData.Value[(int)MapChannel.PATHS];
+            Challenge _challenge = (Challenge)_tagData.Value[(int)MapChannel.CHALLENGE];
 
+            if (_shape == shape && _challenge == challenge ) {
+                tempRoomFiles.Add(_tagData);
             }
+
         }
 
+        // randomly pick one of the files
         int _seed = int.Parse(seed.ToString().Substring(2, 2));
         int roomHash = GameRules.HashID(_seed, id);
         int index = (int)(roomHash) % tempRoomFiles.Count;
         string roomFile = tempRoomFiles[index].Key;
         int[] roomTags = tempRoomFiles[index].Value;
+
+        // return the file
         return (roomFile, shape, exits, roomTags, roomHash);
     }
 
@@ -85,7 +92,7 @@ public class Dungeon : MonoBehaviour
         // load the new room
         room.id = id; 
         room.Open(roomFile);
-        room.ConstructRoom(roomHash, exits);
+        room.ConstructRoom(roomHash, exits, roomTags);
         LoadObjects(id, roomTags);
         LoadExits(room.exitLocations, room.exitRotations, room.exitID);
 
@@ -107,17 +114,23 @@ public class Dungeon : MonoBehaviour
             for (int i = loadedRoomObjects.Length - 1; i >= 0; i--) {
 
                 // only load objects that exist and aren't "dead"
-                if (loadedRoomObjects[i] == null || loadedRoomObjects[i].GetComponent<State>().isDead) {
-                    // loadedRoomObjects.RemoveAt(i);
-                }
-                else {
-                    loadedRoomObjects[i].SetActive(true);
+                if (loadedRoomObjects[i] != null) {
                     if (loadedRoomObjects[i].GetComponent<Mob>() != null) {
-                        loadedRoomObjects[i].transform.position = loadedRoomObjects[i].GetComponent<Mob>().origin;
+                        if (!loadedRoomObjects[i].GetComponent<Mob>().state.isDead) {
+                            loadedRoomObjects[i].transform.position = loadedRoomObjects[i].GetComponent<Mob>().origin;
+                            loadedRoomObjects[i].SetActive(true);
+                        }
                     }
                     else if (loadedRoomObjects[i].GetComponent<Trap>() != null) {
-                        loadedRoomObjects[i].transform.position = loadedRoomObjects[i].GetComponent<Trap>().origin;
+                        if (!loadedRoomObjects[i].GetComponent<Trap>().state.isDead) {
+                            loadedRoomObjects[i].transform.position = loadedRoomObjects[i].GetComponent<Trap>().origin;
+                            loadedRoomObjects[i].SetActive(true);
+                        }
                     }
+                    else {
+                        loadedRoomObjects[i].SetActive(true);
+                    }
+
                 }
             }
 
@@ -130,12 +143,26 @@ public class Dungeon : MonoBehaviour
         }
     }
 
+    public void AddNewObject(GameObject newObject) {
+
+        GameObject[] objects = loadedObjects[Log.ID(roomID)];
+        GameObject[] newObjects = new GameObject[objects.Length + 1];
+        for (int i = 0; i < objects.Length; i++) {
+            newObjects[i] = objects[i];
+        }
+        newObjects[objects.Length] = newObject;
+        loadedObjects[Log.ID(roomID)] = newObjects;
+
+    }
+
     void DeloadObjects(int[] id) {
         // unload the previous challenges
         if (loadedObjects.ContainsKey(Log.ID(id))) {
             GameObject[] loadedRoomObjects = loadedObjects[Log.ID(id)];
             for (int i = loadedObjects[Log.ID(id)].Length - 1; i >= 0; i--) {
-                loadedObjects[Log.ID(id)][i].SetActive(false);
+                if (loadedObjects[Log.ID(id)][i] != null) {
+                    loadedObjects[Log.ID(id)][i].SetActive(false);
+                }
             }
         }
     }

@@ -16,6 +16,8 @@ using Priority = Log.Priority;
 using Shape = Geometry.Shape;
 using Directions = Compass.Direction;
 
+using MapChannel = Map.Channel;
+
 public class Room : MonoBehaviour {
 
     /* --- DEBUG --- */
@@ -49,7 +51,8 @@ public class Room : MonoBehaviour {
         UP, UP_RIGHT,
         LEFT, LEFT_RIGHT, LEFT_UP, LEFT_UP_RIGHT,
         DOWN, DOWN_RIGHT, DOWN_UP, DOWN_UP_RIGHT, DOWN_LEFT, DOWN_LEFT_RIGHT, DOWN_LEFT_UP,
-        DOWN_LEFT_UP_RIGHT
+        DOWN_LEFT_UP_RIGHT,
+        tileCount
     };
 
     /* --- COMPONENTS --- */
@@ -64,13 +67,13 @@ public class Room : MonoBehaviour {
     [Space(5)][Header("Maps")]
     public Tilemap groundMap;
     public Tilemap interiorMap;
-    public Tilemap wallMap;
+    public Tilemap borderMap;
 
     // layouts
     [Space(5)][Header("Tiles")]
     public Layout groundLayout;
     public Layout interiorLayout;
-    public Layout wallLayout;
+    public Layout borderLayout;
 
     // exit data
     // NOTE: please come back and clean this thanks
@@ -83,7 +86,11 @@ public class Room : MonoBehaviour {
     // room dimensions 
     [Space(5)][Header("Room Dimensions")]
     public int[] id = new int[2];
-    [HideInInspector] public int[][][] roomChannels;
+
+    public int[][] groundGrid;
+    public int[][] interiorGrid;
+    public int[][] borderGrid;
+
     [Range(2, 32)] public int sizeVertical = 11;
     [Range(2, 32)] public int sizeHorizontal = 11;
     [Range(1, 8)] public int borderVertical = 2;
@@ -93,10 +100,6 @@ public class Room : MonoBehaviour {
     protected int horOffset = 0;
     protected int vertOffset = 0;
 
-    // lists to store each channels components
-    List<Tilemap> maps = new List<Tilemap>();
-    List<Layout> layouts = new List<Layout>();
-
     /* --- UNITY --- */
 
     // runs once on execution
@@ -104,11 +107,31 @@ public class Room : MonoBehaviour {
         Log.Write("Initializing Room Constructor", debugPrio, debugTag);
 
         // initialize the default parameters
-        SetChannels();
+        SetGrid();
+        SetLayouts();
         SetOffset();
     }
 
     /* --- FILES --- */
+
+    // initialize a grid full of empty tiles
+    void SetGrid() {
+        groundGrid = new int[sizeVertical][];
+        for (int i = 0; i < sizeVertical; i++) {
+            groundGrid[i] = new int[sizeHorizontal];
+            for (int j = 0; j < sizeHorizontal; j++) {
+                groundGrid[i][j] = (int)Tiles.EMPTY;
+            }
+        }
+        interiorGrid = new int[sizeVertical][];
+        for (int i = 0; i < sizeVertical; i++) {
+            interiorGrid[i] = new int[sizeHorizontal];
+            for (int j = 0; j < sizeHorizontal; j++) {
+                interiorGrid[i][j] = (int)Tiles.EMPTY;
+            }
+        }
+
+    }
 
     // open a file from the filename
     public virtual void Open(string fileName) {
@@ -119,22 +142,19 @@ public class Room : MonoBehaviour {
     protected void Read(string fileName) {
         Log.ReadFile(fileName);
 
-        // read the data from the file
-        TextAsset roomAsset = Resources.Load(path + fileName) as TextAsset;
-        string room = roomAsset.text;
+        string room = "";
+        using (StreamReader readFile = new StreamReader(GameRules.Path + path + fileName + fileExtension)) {
+            room = readFile.ReadToEnd();
+        }
 
         // put the data into the appropriate format
-        string[] channels = room.Split('\n');
-        roomChannels = new int[channels.Length - 1][][];
-        for (int n = 0; n < channels.Length - 1; n++) {
-            string[] rows = channels[n].Split('\t');
-            roomChannels[n] = new int[rows.Length - 1][];
-            for (int i = 0; i < rows.Length - 1; i++) {
-                string[] columns = rows[i].Split(' ');
-                roomChannels[n][i] = new int[columns.Length - 1];
-                for (int j = 0; j < columns.Length - 1; j++) {
-                    roomChannels[n][i][j] = int.Parse(columns[j]);
-                }
+        string[] rows = room.Split('\t');
+        interiorGrid = new int[rows.Length - 1][];
+        for (int i = 0; i < rows.Length - 1; i++) {
+            string[] columns = rows[i].Split(' ');
+            interiorGrid[i] = new int[columns.Length - 1];
+            for (int j = 0; j < columns.Length - 1; j++) {
+                interiorGrid[i][j] = int.Parse(columns[j]);
             }
         }
 
@@ -190,20 +210,11 @@ public class Room : MonoBehaviour {
     /* --- INITIALIZERS --- */
 
     // initialize the channels for this room
-    void SetChannels() {
+    void SetLayouts() {
 
         // organize the walls
-        wallLayout.SetDirectionalOrder();
+        borderLayout.SetOrder();
         
-        // add the maps
-        maps.Add(groundMap);
-        maps.Add(interiorMap);
-        maps.Add(wallMap);
-
-        // add the layouts
-        layouts.Add(groundLayout);
-        layouts.Add(interiorLayout);
-        layouts.Add(wallLayout);
     }
 
     // initialize the offset of tile map
@@ -216,16 +227,16 @@ public class Room : MonoBehaviour {
     /* --- CONSTRUCTION --- */
 
     // creates the room based on the challenge and the room data
-    public void ConstructRoom(int seed, Directions exits) {
+    public void ConstructRoom(int seed, Directions exits, int[] roomTags) {
         Log.Write("Constructing Room with ID: " + Log.ID(id), debugPrio, debugTag);
 
         // edit the data based on this info
         SetGround(seed);
+        SetBorder((Shape)roomTags[(int)MapChannel.SHAPE]);
         SetExits(exits);
 
-        // print the tiles
-        PrintChannel(Channel.GROUND);
-        PrintChannel(Channel.WALL);
+        PrintRoom();
+
     }
 
     // create the exits for the room
@@ -249,28 +260,28 @@ public class Room : MonoBehaviour {
         // NOTE: this can be made much cleaner
         if (Compass.CheckPath((int)exits, Directions.RIGHT)) {
             int[] point = new int[] { y_mid, x_1 };
-            RemovePoint(point, Channel.WALL);
+            RemovePoint(point, borderGrid);
             exitLocations.Add(GridToTileMap(point[0], point[1]));
             exitID.Add(new int[] { 0, 1 });
             exitRotations.Add(0f);
         }
         if (Compass.CheckPath((int)exits, Directions.UP)) {
             int[] point = new int[] { y_0, x_mid };
-            RemovePoint(point, Channel.WALL);
+            RemovePoint(point, borderGrid);
             exitLocations.Add(GridToTileMap(point[0], point[1]));
             exitID.Add(new int[] { -1, 0 });
             exitRotations.Add(-270f);
         }
         if (Compass.CheckPath((int)exits, Directions.LEFT)) {
             int[] point = new int[] { y_mid, x_0 };
-            RemovePoint(point, Channel.WALL);
+            RemovePoint(point, borderGrid);
             exitLocations.Add(GridToTileMap(point[0], point[1]));
             exitID.Add(new int[] { 0, -1 });
             exitRotations.Add(-180f);
         }
         if (Compass.CheckPath((int)exits, Directions.DOWN)) {
             int[] point = new int[] { y_1, x_mid };
-            RemovePoint(point, Channel.WALL);
+            RemovePoint(point, borderGrid);
             exitLocations.Add(GridToTileMap(point[0], point[1]));
             exitID.Add(new int[] { 1, 0 });
             exitRotations.Add(-90f);
@@ -281,25 +292,62 @@ public class Room : MonoBehaviour {
     public void SetGround(int seed) {
         Log.Write("Setting ground for Room with ID: " + Log.ID(id), debugSubPrio, debugTag);
 
+        // reset the ground
+        groundGrid = new int[sizeVertical][];
+        for (int i = 0; i < sizeVertical; i++) {
+            groundGrid[i] = new int[sizeHorizontal];
+            for (int j = 0; j < sizeHorizontal; j++) {
+                groundGrid[i][j] = (int)Tiles.EMPTY;
+            }
+        }
+
         int _seed = int.Parse(seed.ToString().Substring(3, 2));
         int row = _seed % 4;
 
+        groundGrid = new int[sizeVertical][];
         for (int i = 0; i < sizeVertical; i++) {
+            groundGrid[i] = new int[sizeHorizontal];
             for (int j = 0; j < sizeHorizontal; j++) {
                 int tileHash = GameRules.HashID(_seed, new int[] { i, j });
                 int tileIndex = tileHash % 4;
                 tileIndex = 4 * row + tileIndex;
-                roomChannels[(int)Channel.GROUND][i][j] = tileIndex;
+                groundGrid[i][j] = tileIndex;
             }
         }
 
     }
 
-    protected void RemovePoint(int[] point, Channel channel) {
-        // print("Removing Tile");
-        roomChannels[(int)channel][point[0]][point[1]] = (int)Tiles.EMPTY;
+    // add a shape sub grid
+    public void SetBorder(Shape shape) {
+        // reset the grid
+        borderGrid = new int[sizeVertical][];
+        for (int i = 0; i < sizeVertical; i++) {
+            borderGrid[i] = new int[sizeHorizontal];
+            for (int j = 0; j < sizeHorizontal; j++) {
+                borderGrid[i][j] = (int)Tiles.EMPTY;
+            }
+        }
+        // create the shape sub grid
+        int[][] subGrid = Geometry.BorderGrid(shape, (int)Tiles.EMPTY, (int)Tiles.CENTER, sizeVertical, sizeHorizontal, borderHorizontal - 1, borderVertical - 1);
+        // add the shape sub grid to the grid
+        AttachToGrid(subGrid, borderGrid, new int[] { 0, 0 });
+        CleanBorder();
     }
 
+
+    // attach a sub grid to the grid
+    public void AttachToGrid(int[][] subGrid, int[][] grid, int[] anchor) {
+        for (int i = 0; i < subGrid.Length; i++) {
+            for (int j = 0; j < subGrid[0].Length; j++) {
+                if (subGrid[i][j] != (int)Tiles.EMPTY) {
+                    int[] point = new int[] { i + anchor[0], j + anchor[1] };
+                    if (PointInGrid(point)) {
+                        grid[i + anchor[0]][j + anchor[1]] = subGrid[i][j];
+                    }
+                }
+            }
+        }
+    }
     // create the challenges here
     public GameObject[] LoadNewObjects(Challenge challenge, ToolSet toolSet) {
         Log.Write("Creating Challenges for Room with ID " + Log.ID(id), debugSubPrio, debugTag);
@@ -313,7 +361,7 @@ public class Room : MonoBehaviour {
             for (int j = 0; j < sizeHorizontal; j++) {
                 
                 // instantiate the appropriate challenge type indexed at
-                int challengeIndex = roomChannels[(int)Channel.INTERIOR][i][j];
+                int challengeIndex = interiorGrid[i][j];
 
                 // check that its a valid index
                 if (challengeIndex < objectReferences.Length && objectReferences[challengeIndex] != null) {
@@ -332,31 +380,109 @@ public class Room : MonoBehaviour {
     }
 
     /* --- DISPLAY --- */
-    public void PrintChannel(Channel channel) {
+    public void PrintRoom() {
+        PrintGridToMap(groundGrid, groundMap, groundLayout);
+        PrintGridToMap(borderGrid, borderMap, borderLayout);
+    }
+
+    public void PrintGridToMap(int[][] grid, Tilemap tileMap, Layout layout) {
         for (int i = 0; i < sizeVertical; i++) {
             for (int j = 0; j < sizeHorizontal; j++) {
-                PrintTile(channel, i, j);
+                PrintTile(grid, tileMap, layout, i, j);
             }
         }
     }
 
     // prints out a grid cell to a tile
-    public void PrintTile(Channel channel, int i, int j) {
+    public void PrintTile(int[][] grid, Tilemap tilemap, Layout layout, int i, int j) {
         // get the tile position from the grid coordinates
         Vector3Int tilePosition = GridToTileMap(i, j);
 
-        // get the channel we're editing
-        // for now this is just room channel
-        int n = (int)channel;
-
         // set the tile 
-        if (roomChannels[n][i][j] < layouts[n].tiles.Length) {
-            TileBase tile = layouts[n].tiles[roomChannels[n][i][j]];
-            maps[n].SetTile(tilePosition, tile);
+        int val = grid[i][j];
+        if (val < layout.tiles.Length) {
+            TileBase tile = layout.tiles[val];
+            tilemap.SetTile(tilePosition, tile);
         }
     }
 
+    /* --- CLEANING --- */
+
+    // iterate through the grid and clean each cell
+    public void CleanBorder() {
+        for (int i = borderVertical - 1; i < sizeVertical - (borderVertical - 1); i++) {
+            for (int j = borderHorizontal - 1; j < sizeHorizontal - (borderHorizontal - 1); j++) {
+                if (borderGrid[i][j] != (int)Tiles.CENTER) {
+                    CleanBorderCell(i, j);
+                }
+            }
+        }
+    }
+
+    // iterate through the grid and clean each cell
+    public void CleanBorderCell(int i, int j) {
+
+        int val = borderGrid[i][j];
+
+        if (CellIsFilled(borderGrid, i + 1, j)) { val += 8; }
+        if (CellIsFilled(borderGrid, i - 1, j)) { val += 2; }
+        if (CellIsFilled(borderGrid, i, j + 1)) { val += 1; }
+        if (CellIsFilled(borderGrid, i, j - 1)) { val += 4; }
+        if (val != 0) { val += 1; }
+
+        borderGrid[i][j] = val;
+
+    }
+
+    bool CellIsFilled(int[][] grid, int i, int j) {
+        if (i < 0 || i > sizeVertical - 1 || j < 0 || j > sizeVertical - 1) {
+            return false;
+        }
+        if (grid[i][j] == (int)Tiles.CENTER) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void RemovePoint(int[] point, int[][] grid) {
+        // print("Removing Tile");
+        if (PointInGrid(point)) {
+            grid[point[0]][point[1]] = (int)Tiles.EMPTY;
+        }
+    }
+
+
     /* --- CONVERSION --- */
+
+    // mouse click to grid coordinate
+    public int[] ClickToGrid() {
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        return PointToGrid(mousePos);
+    }
+
+    // checks if a coordinate is in the grid
+    public bool PointInGrid(int[] point) {
+        bool isInGrid = (point[1] < sizeHorizontal && point[1] >= 0 && point[0] < sizeVertical && point[0] >= 0);
+        if (!isInGrid) {
+            // print(point[0] + ", " + point[1] + " was not in the grid");
+        }
+        return isInGrid;
+    }
+
+    // checks if a coordinate is in the grid
+    // and also not on the border
+    public bool PointWithinBorders(int[] point) {
+        bool isInHor = (point[1] < sizeHorizontal && point[1] >= 0);
+        bool isInVert = (point[0] < sizeVertical && point[0] >= 0);
+        bool isInGrid = (isInHor && isInVert);
+        if (isInGrid) {
+            // print(point[0] + ", " + point[1] + " was not within the grid");
+            if (borderGrid[point[0]][point[1]] != (int)Tiles.EMPTY) {
+                isInGrid = false;
+            }
+        }
+        return isInGrid;
+    }
 
     // a given point to grid coordinates 
     public int[] PointToGrid(Vector2 point) {

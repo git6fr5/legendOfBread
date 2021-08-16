@@ -9,6 +9,8 @@ TagManager:
   - Hitbox
   - Vision
   - Room
+  - Item
+  - Dungeon
   layers:
   - Default
   - TransparentFX
